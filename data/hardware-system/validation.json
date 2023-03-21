@@ -1,0 +1,74 @@
+{
+    "cache coherency strategies": [
+        "090fa6856c4c245b31abfa9b2cf04ed53d49aa68",
+        "83447102c1a026503fe0596f40549c480706e260",
+        "21d6373e8d8b84e7619fc949fcfc50a4c0b5fa41",
+        "5eed1615b0ac188adb576661dd60daf87cbd15af",
+        "cfe4f38d5b75bf3294176d50e766a3f90372b21b",
+        "e2ddcdedd57686b8f3b6e9822eecac88d2dab7ae",
+        "88085676d6f9c1903d25eac49d4eb2a9e324d71f",
+        "1627b3b164e5d3fd90efc2c43538c63b8ef9f749",
+        "74b56d5dc1f693cb621031666b05af92a30ed959",
+        "0f129c17c360cd0fd5a66a080a6b86ab37717faf"
+    ],
+    "two way set associative memory": [
+        "2413dc6d86c43c5cc839152603c641447ce1cabf",
+        "4ccc6e420b7a3d8d5f9b90f3d6dc17b0e0da7ae0",
+        "193f4bcc837282da9265dc0783812bbfa7eeeb6d",
+        "76fe87f038315a3409723f261536dfecabc316a9",
+        "f2603a904b8f5728fab5bc9ec092a1183291d5c2",
+        "19d52f77243850590c7e9ba93647f9b8e5c613e9",
+        "82a54064c55f9ecb948bde6bbd174256b01989b0",
+        "aa76fe7cc76ace36e699f31e8a3e13759100fbac",
+        "d996eccb0d67ba2ce7f3b9a3eba8784d850ed1af",
+        "0b280dd0bcdc8acf493d5f260964b1cd05196118"
+    ],
+    "hardware clock synchronization": [
+        "f829b63adcbf30f163b9c63d86f06b9bc49882cd",
+        "37f580bb9cdd7e41b381c9732b4d0c0df3fc0b26",
+        "7ece38777d5c342b950393bfab17340e8c18222b",
+        "e85413012adaeb61f746d4346451fdd0f3d9e896",
+        "ad9da207312d0009cee4bf18840bf6fe205dacc2",
+        "c833a3352bf4cdee9017013ec86f0e9ffa96d7ec",
+        "c2e33345c71c283b9a491e4bfad532838d5c8635",
+        "bc7ff6b54c3d560328dc792fa97139fd1afbb821",
+        "acd56d4f25e6108f1d624dfcdac18991f6b59b01",
+        "ff406a6e6224c3be3a25147b9f15b08cecf12052"
+    ],
+    "offloading per-packet security operations": [
+      "8691dee025c9bd2a8da9f9dc8f95162345884684",
+      "c695e9788af7a0f4a5a5d5e328c81c3fc2a3a8a6",
+      "98523a7aa098b28e4a76048e052fe8b83fc6bdb4",
+      "f6b90bfa23febde97dcf8bba9f926e496f7c9ccb",
+      "3ccf9ca8c9ea1aafbca8f6752fba814f28cc3e4f",
+      "12555e4a6fb00dbcd358c73a88a141aaa937d134",
+      "73616a6b3d24a46d59b48258896a81ec368ede51",
+      "6cb88f4a396d92253aac0324345fe634d9a70ae7",
+      "0c38bbc224344399bd15d2adbc8fa44814375f9e",
+      "730dceda5db2861cdac769e92a476353a6f7d902"
+   ],
+   "polygon-based CGH": [
+      "ebb98c7b6f3fcc707b2ca16ef6b4276bbcb4463b",
+      "4e097f73f8bb87ab806dacb3c7bbde959431fdc9",
+      "8bf1f2374e8550e93f66c7c36e7c596382734eab",
+      "53bc34ee0dc18754fed4cd8c05d58dab5cbd6649",
+      "3a59bd78903709550755c5c1fc56a8cb1a94d204",
+      "c76b17569bff915971aadfd72b65c0937bdd8d57",
+      "20c7bfadb6e208f097f849019c17aeb8fbe63aad",
+      "af53ba5724c0774f7277f3fca0e295470d5212d1",
+      "62665d9437c32aa3c35c6600318b9e742765bc0e",
+      "d06ce50bb68d6a131a9c9d71dae2f538300b7ba1"
+   ],
+   "polling-based I/O": [
+      "f464c3c17bc5c940c6db4fc50f7490077f1e6eda",
+      "b988b700065ee22cacdce999fd00f54462cb2ee5",
+      "0bbea57d6a6e14c295dd07ed3cb8ebcf836bf543",
+      "6c6f2bebd777b85d4f78b1cc7b00b438ffda565a",
+      "e41169c018f11c0ff84f181544782130a7d4772c",
+      "88219e407b11da09a2bf260ad8bf2e27dc1f4695",
+      "35533f8701233da0efc720a38a2386da73e809b9",
+      "489e0ea06eb4a96662a9ad7539fd75e1b4fc9b08",
+      "f524abbae3be376f967bd2721ef41be931f2f8d0",
+      "eac90bdc866f6066730cac7e82765b7e8169a08e"
+   ]
+}
