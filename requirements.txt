@@ -2,3 +2,4 @@ spacy
 pandas
 nltk
 termcolor
+tqdm
