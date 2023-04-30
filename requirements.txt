@@ -7,3 +7,5 @@ numpy
 pandarallel
 scikit-learn
 torch
+matplotlib
+seaborn
