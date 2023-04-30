@@ -1,0 +1,5 @@
+outs:
+- md5: b7d949b2d8b1a257b2446c5a1f038e66.dir
+  size: 6220640
+  nfiles: 2
+  path: ai-bio
