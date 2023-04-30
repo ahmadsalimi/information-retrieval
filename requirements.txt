@@ -4,3 +4,6 @@ nltk
 termcolor
 tqdm
 numpy
+pandarallel
+scikit-learn
+torch
