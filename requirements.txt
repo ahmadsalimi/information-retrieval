@@ -9,3 +9,6 @@ scikit-learn
 torch
 matplotlib
 seaborn
+fasttext
+pillow>=9.1.0
+wordcloud
