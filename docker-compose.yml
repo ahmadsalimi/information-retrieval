@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  crawl-kasaei:
+    build: ./ss_crawler
+    container_name: crawl-kasaei
+    volumes:
+      - ./data/papers:/app/data/papers
+      - ./results:/app/results
+    command:
+      - python
+      - main.py
+      - -i
+      - /app/data/papers/Kasaei.txt
+      - -o
+      - /app/results/crawled_paper_Kasaei.json
+
+  crawl-rabiee:
+    build: ./ss_crawler
+    container_name: crawl-rabiee
+    volumes:
+      - ./data/papers:/app/data/papers
+      - ./results:/app/results
+    command:
+      - python
+      - main.py
+      - -i
+      - /app/data/papers/Rabiee.txt
+      - -o
+      - /app/results/crawled_paper_Rabiee.json
+
+  crawl-rohban:
+    build: ./ss_crawler
+    container_name: crawl-rohban
+    volumes:
+      - ./data/papers:/app/data/papers
+      - ./results:/app/results
+    command:
+      - python
+      - main.py
+      - -i
+      - /app/data/papers/Rohban.txt
+      - -o
+      - /app/results/crawled_paper_Rohban.json
+
+  crawl-Sharifi:
+    build: ./ss_crawler
+    container_name: crawl-Sharifi
+    volumes:
+      - ./data/papers:/app/data/papers
+      - ./results:/app/results
+    command:
+      - python
+      - main.py
+      - -i
+      - /app/data/papers/Sharifi.txt
+      - -o
+      - /app/results/crawled_paper_Sharifi.json
+
+  crawl-Soleymani:
+    build: ./ss_crawler
+    container_name: crawl-Soleymani
+    volumes:
+      - ./data/papers:/app/data/papers
+      - ./results:/app/results
+    command:
+      - python
+      - main.py
+      - -i
+      - /app/data/papers/Soleymani.txt
+      - -o
+      - /app/results/crawled_paper_Soleymani.json
