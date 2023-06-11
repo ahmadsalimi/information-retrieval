@@ -34,13 +34,15 @@ class Paper:
 def retry(func=None, max_retries: int = 5):
     def decorator(func):
         def wrapper(*args, **kwargs):
+            e = None
             for i in range(max_retries + 1):
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
                     print(f'Failed to call {func.__name__}({args}, {kwargs})')
                     print(e)
-                    print(f'Retry {i + 1}/{max_retries}')
+                    if i < max_retries:
+                        print(f'Retry {i + 1}/{max_retries}')
                     time.sleep(WAIT_TIME)
             raise e
         return wrapper
