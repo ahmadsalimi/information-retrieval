@@ -200,7 +200,7 @@ def main(args: argparse.Namespace):
     caps = DesiredCapabilities().CHROME
     caps["pageLoadStrategy"] = "eager"  # interactive
 
-    service = Service(ChromeDriverManager(print_first_line=False, log_level=logging.CRITICAL).install())
+    service = Service(ChromeDriverManager(print_first_line=False, log_level=logging.INFO).install())
     driver = webdriver.Chrome(service=service,
                               desired_capabilities=caps,
                               options=chrome_options)
