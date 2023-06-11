@@ -14,8 +14,8 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from tqdm import tqdm
 
-MAX_PAPERS = 2000
-WAIT_TIME = 10
+MAX_PAPERS = os.getenv('MAX_PAPERS', 1000)
+WAIT_TIME = os.getenv('WAIT_TIME', 10)
 
 
 @dataclass

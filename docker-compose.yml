@@ -7,3 +7,6 @@ services:
     volumes:
       - ./data/papers:/app/data/papers
       - ./results:/app/results
+    environment:
+      MAX_PAPERS: ${MAX_PAPERS}
+      WAIT_TIME: ${WAIT_TIME}
