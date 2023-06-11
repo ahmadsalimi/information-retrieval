@@ -1,4 +1,4 @@
-FROM selenium/standalone-chrome
+FROM joyzoursky/python-chromedriver
 
 WORKDIR /app
 
