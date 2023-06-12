@@ -1,6 +1,7 @@
 import argparse
 import os
 import re
+from collections import defaultdict
 from dataclasses import dataclass, asdict
 import json
 import logging
@@ -46,22 +47,50 @@ class Paper:
         return wrapper
 
 
+failure_counts_by_wait_power = defaultdict(lambda: defaultdict(int))
+total_tries = defaultdict(int)
+failure_rate_threshold = 0.2
+max_wait_power = 7
+
+
+def calculate_wait_power(func_name):
+    n = total_tries[func_name]
+    if n == 0:
+        return 0
+
+    acceptable_powers = [
+        power
+        for power, failure_count in failure_counts_by_wait_power[func_name].items()
+        if failure_count / n < failure_rate_threshold
+    ]
+
+    if not acceptable_powers:
+        return 0
+
+    return min(max_wait_power, min(acceptable_powers))
+
+
 def retry(func=None):
     # exponential backoff
+
     def decorator(func):
         def wrapper(*args, **kwargs):
-            wait_time = WAIT_TIME
+            wait_power = calculate_wait_power(func.__name__)
+
             i = 1
             while True:
                 try:
+                    total_tries[func.__name__] += 1
                     return func(*args, **kwargs)
                 except:
                     print(f'Failed to call {func.__name__}({args}, {kwargs})')
                     traceback.print_exc()
+                    failure_counts_by_wait_power[func.__name__][wait_power] += 1
+                    wait_power += 1
+                    wait_time = WAIT_TIME * 2 ** wait_power
                     print(f'Retry {i} after {wait_time:.2f}s wait')
-                    time.sleep(WAIT_TIME)
+                    time.sleep(wait_time)
                     i += 1
-                    wait_time *= 2
         return wrapper
 
     if func:
@@ -104,6 +133,8 @@ class SemanticScholarCrawler:
         paper = self.crawl_paper(id_)
         self.papers.append(paper)
         self.queue.extend(paper.references)
+        if any(not ref for ref in paper.references):
+            print(f'Paper {paper.id} has empty reference: {paper.references}')
 
     @Paper.deserialize
     @cache.cache_string(get_cache_key=lambda self, id_: f'ss-paper:{id_}')
