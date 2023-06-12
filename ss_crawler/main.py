@@ -123,6 +123,7 @@ class SemanticScholarCrawler:
         self.driver = driver
         self.queue = [id_from_url(url.strip()) for url in seed_urls]
         self.papers: List[Paper] = []
+        self.stored_ids = set()
         self.crawled_count = 0
 
     @property
@@ -130,13 +131,15 @@ class SemanticScholarCrawler:
         return bool(self.queue) and len(self.papers) < MAX_PAPERS
 
     def get_next(self):
-        id_ = self.queue.pop(0)
+        while (id_ := self.queue.pop(0)) in self.stored_ids:
+            pass
         paper = self.crawl_paper(id_)
         while any(not ref for ref in paper.references):
             cache.get_cache().delete(f'ss-paper:{id_}')
             print(f'Paper {id_} has missing references, recrawling')
             paper = self.crawl_paper(id_)
         self.papers.append(paper)
+        self.stored_ids.add(id_)
         self.queue.extend(paper.references)
 
     @Paper.deserialize
