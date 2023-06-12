@@ -104,7 +104,7 @@ class SemanticScholarCrawler:
         self.queue.extend(paper.references)
 
     @Paper.deserialize
-    @cache.cache_string()
+    @cache.cache_string(get_cache_key=lambda self, id_: f'ss-paper:{id_}')
     @Paper.serialize
     @retry
     def crawl_paper(self, id_: str) -> Paper:
