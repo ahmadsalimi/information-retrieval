@@ -121,6 +121,7 @@ class SemanticScholarCrawler:
             reference_count=self.current_reference_count,
             references=self.current_references)
         self.crawled_count += 1
+        time.sleep(WAIT_TIME)
         return paper
 
     # @print_call
@@ -202,7 +203,6 @@ def main(args: argparse.Namespace):
                 queue_size=len(crawler.queue),
                 crawled_count=crawler.crawled_count,
             ))
-            time.sleep(WAIT_TIME)
 
     with open(args.output, 'w') as f:
         json.dump([asdict(paper) for paper in crawler.papers], f, indent=2)
