@@ -161,7 +161,7 @@ class SemanticScholarCrawler:
                 continue
 
     def raise_if_page_not_found(self):
-        if (status_element := self.driver.find_element(By.ID, 'error-status'))\
+        if (status_element := next(iter(self.driver.find_elements(By.ID, 'error-status')), None))\
                 and status_element.get_attribute('value') == '404':
             raise PageNotFoundError()
 
