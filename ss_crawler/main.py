@@ -210,27 +210,3 @@ if __name__ == '__main__':
     parser.add_argument('--output', '-o', type=str, help='Output JSON file path')
     args = parser.parse_args()
     main(args)
-
-
-def d1(func):
-    def wrapper(*args, **kwargs):
-        print(f'before {func.__name__}({args}, {kwargs})')
-        result = func(*args, **kwargs)
-        print(f'after {func.__name__}({args}, {kwargs}) -> {result}')
-        return result
-    return wrapper
-
-
-def d2(func):
-    def wrapper(*args, **kwargs):
-        print(f'before {func.__name__}({args}, {kwargs})')
-        result = func(*args, **kwargs)
-        print(f'after {func.__name__}({args}, {kwargs}) -> {result}')
-        return result
-    return wrapper
-
-
-@d1
-@d2
-def f(x):
-    return x + 1
