@@ -91,6 +91,7 @@ class SemanticScholarCrawler:
         self.driver = driver
         self.queue = [id_from_url(url.strip()) for url in seed_urls]
         self.papers: List[Paper] = []
+        self.crawled_count = 0
 
     @property
     def has_next(self) -> bool:
@@ -109,7 +110,7 @@ class SemanticScholarCrawler:
     def crawl_paper(self, id_: str) -> Paper:
         url = url_from_id(id_)
         self.driver.get(url)
-        return Paper(
+        paper = Paper(
             id=id_,
             title=self.current_title,
             abstract=self.current_abstract,
@@ -119,6 +120,8 @@ class SemanticScholarCrawler:
             citation_count=self.current_citation_count,
             reference_count=self.current_reference_count,
             references=self.current_references)
+        self.crawled_count += 1
+        return paper
 
     # @print_call
     def get_single_meta(self, name: str) -> str:
@@ -197,6 +200,7 @@ def main(args: argparse.Namespace):
             pbar.update(1)
             pbar.set_postfix(dict(
                 queue_size=len(crawler.queue),
+                crawled_count=crawler.crawled_count,
             ))
             time.sleep(WAIT_TIME)
 
