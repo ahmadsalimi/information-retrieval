@@ -158,6 +158,7 @@ class SemanticScholarCrawler:
             try:
                 self.retrieve_paper_properly(id_)
             except PageNotFoundError:
+                print(f'Page not found: {id_}. Skipping...')
                 continue
 
     def raise_if_page_not_found(self):
