@@ -11,6 +11,7 @@ from typing import List
 
 from redis_decorators import RedisCaching
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
@@ -177,7 +178,10 @@ class SemanticScholarCrawler:
 
     @property
     def current_publication_year(self) -> int:
-        return int(self.get_single_meta('citation_publication_date'))
+        try:
+            return int(self.get_single_meta('citation_publication_date'))
+        except NoSuchElementException:
+            return -1
 
     @property
     def current_authors(self) -> List[str]:
