@@ -160,7 +160,7 @@ class SemanticScholarCrawler:
     def current_reference_count(self) -> int:
         return int(next((mo.group('count').replace(',', '')
                         for x in self.driver.find_elements(By.CSS_SELECTOR, 'span.paper-nav__nav-label')
-                        if (mo := self.reference_count_pattern.match(x.text))), float('NaN')))
+                        if (mo := self.reference_count_pattern.match(x.text))), -1))
 
     @property
     def current_references(self) -> List[str]:
