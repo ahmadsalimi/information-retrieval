@@ -83,6 +83,8 @@ def retry(func=None):
                 try:
                     total_tries[func.__name__] += 1
                     return func(*args, **kwargs)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     print(f'Failed to call {func.__name__}({args}, {kwargs})')
                     traceback.print_exc()
