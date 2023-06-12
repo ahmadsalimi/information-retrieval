@@ -10,3 +10,9 @@ services:
     environment:
       MAX_PAPERS: ${MAX_PAPERS}
       WAIT_TIME: ${WAIT_TIME}
+
+  cache:
+    image: redis:alpine
+    container_name: ss-cache
+    volumes:
+      - ./data/redis:/data

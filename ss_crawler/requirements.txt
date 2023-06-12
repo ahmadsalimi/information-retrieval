@@ -1,3 +1,4 @@
 selenium==4.1.0
 webdriver-manager==3.5.3
 tqdm
+redis_decorators

@@ -7,15 +7,17 @@ import logging
 import time
 from typing import List
 
-from webdriver_manager.chrome import ChromeDriverManager
+from redis_decorators import RedisCaching
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from tqdm import tqdm
+from webdriver_manager.chrome import ChromeDriverManager
 
 MAX_PAPERS = int(os.getenv('MAX_PAPERS', 1000))
 WAIT_TIME = float(os.getenv('WAIT_TIME', 10))
+cache = RedisCaching('redis://cache:6379')
 
 
 @dataclass
@@ -29,6 +31,18 @@ class Paper:
     citation_count: int
     reference_count: int
     references: List[str]
+
+    @staticmethod
+    def serialize(func):
+        def wrapper(*args, **kwargs):
+            return json.dumps(asdict(func(*args, **kwargs)))
+        return wrapper
+
+    @staticmethod
+    def deserialize(func):
+        def wrapper(*args, **kwargs):
+            return Paper(**json.loads(func(*args, **kwargs)))
+        return wrapper
 
 
 def retry(func=None, max_retries: int = 5):
@@ -88,6 +102,9 @@ class SemanticScholarCrawler:
         self.papers.append(paper)
         self.queue.extend(paper.references)
 
+    @Paper.deserialize
+    @cache.cache_string
+    @Paper.serialize
     @retry
     def crawl_paper(self, id_: str) -> Paper:
         url = url_from_id(id_)
