@@ -50,6 +50,10 @@ class Paper:
         return wrapper
 
 
+class PageNotFoundError(Exception):
+    pass
+
+
 failure_counts_by_wait_power = defaultdict(lambda: defaultdict(int))
 total_tries = defaultdict(int)
 failure_rate_threshold = 0.2
@@ -87,7 +91,7 @@ def retry(func=None):
                     result = func(*args, **kwargs)
                     time.sleep(MIN_WAIT_TIME * 2 ** calculate_wait_power(func.__name__))
                     return result
-                except KeyboardInterrupt:
+                except (KeyboardInterrupt, SystemExit, PageNotFoundError):
                     raise
                 except:
                     print(f'Failed to call {func.__name__}({args}, {kwargs})')
@@ -137,17 +141,29 @@ class SemanticScholarCrawler:
     def has_next(self) -> bool:
         return bool(self.queue) and len(self.papers) < MAX_PAPERS
 
-    def get_next(self):
+    def pop_new_id(self) -> str:
         while (id_ := self.queue.pop(0)) in self.stored_ids:
             pass
+        return id_
+
+    def retrieve_paper_properly(self, id_: str):
         paper = self.crawl_paper(id_)
-        while any(not ref for ref in paper.references):
-            cache.get_cache().delete(f'ss-paper:{id_}')
-            print(f'Paper {id_} has missing references, recrawling')
-            paper = self.crawl_paper(id_)
-        self.papers.append(paper)
         self.stored_ids.add(id_)
+        self.papers.append(paper)
         self.queue.extend(paper.references)
+
+    def get_next(self):
+        while self.has_next:
+            id_ = self.pop_new_id()
+            try:
+                self.retrieve_paper_properly(id_)
+            except PageNotFoundError:
+                continue
+
+    def raise_if_page_not_found(self):
+        if (status_element := self.driver.find_element(By.ID, 'error-status'))\
+                and status_element.get_attribute('value') == '404':
+            raise PageNotFoundError()
 
     @Paper.deserialize
     @cache.cache_string(get_cache_key=lambda self, id_: f'ss-paper:{id_}')
@@ -156,6 +172,7 @@ class SemanticScholarCrawler:
     def crawl_paper(self, id_: str) -> Paper:
         url = url_from_id(id_)
         self.driver.get(url)
+        self.raise_if_page_not_found()
         paper = Paper(
             id=id_,
             title=self.current_title,
