@@ -9,7 +9,8 @@ services:
       - ./results:/app/results
     environment:
       MAX_PAPERS: ${MAX_PAPERS}
-      WAIT_TIME: ${WAIT_TIME}
+      MIN_WAIT_TIME: ${MIN_WAIT_TIME}
+      MAX_WAIT_TIME: ${MAX_WAIT_TIME}
 
   cache:
     image: redis:alpine

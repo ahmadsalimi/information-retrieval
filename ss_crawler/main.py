@@ -1,10 +1,11 @@
 import argparse
-import os
-import re
 from collections import defaultdict
 from dataclasses import dataclass, asdict
 import json
 import logging
+import math
+import os
+import re
 import time
 import traceback
 from typing import List
@@ -19,7 +20,8 @@ from tqdm import tqdm
 from webdriver_manager.chrome import ChromeDriverManager
 
 MAX_PAPERS = int(os.getenv('MAX_PAPERS', 1000))
-WAIT_TIME = float(os.getenv('WAIT_TIME', 10))
+MIN_WAIT_TIME = float(os.getenv('MIN_WAIT_TIME', 10))
+MAX_WAIT_TIME = float(os.getenv('MAX_WAIT_TIME', 60))
 cache = RedisCaching('redis://cache:6379')
 
 
@@ -51,7 +53,7 @@ class Paper:
 failure_counts_by_wait_power = defaultdict(lambda: defaultdict(int))
 total_tries = defaultdict(int)
 failure_rate_threshold = 0.2
-max_wait_power = 7
+max_wait_power = int(math.log2(MAX_WAIT_TIME / MIN_WAIT_TIME))
 
 
 def calculate_wait_power(func_name):
@@ -82,15 +84,18 @@ def retry(func=None):
             while True:
                 try:
                     total_tries[func.__name__] += 1
-                    return func(*args, **kwargs)
+                    result = func(*args, **kwargs)
+                    time.sleep(MIN_WAIT_TIME * 2 ** calculate_wait_power(func.__name__))
+                    return result
                 except KeyboardInterrupt:
                     raise
                 except:
                     print(f'Failed to call {func.__name__}({args}, {kwargs})')
                     traceback.print_exc()
                     failure_counts_by_wait_power[func.__name__][wait_power] += 1
-                    wait_power += 1
-                    wait_time = WAIT_TIME * 2 ** wait_power
+                    if wait_power < max_wait_power:
+                        wait_power += 1
+                    wait_time = MIN_WAIT_TIME * 2 ** wait_power
                     print(f'Retry {i} after {wait_time:.2f}s wait')
                     time.sleep(wait_time)
                     i += 1
@@ -162,7 +167,6 @@ class SemanticScholarCrawler:
             reference_count=self.current_reference_count,
             references=self.current_references)
         self.crawled_count += 1
-        time.sleep(WAIT_TIME)
         return paper
 
     # @print_call
