@@ -168,10 +168,14 @@ class SemanticScholarCrawler:
 
     @property
     def current_references(self) -> List[str]:
-        return [div.get_attribute('data-paper-id')
-                for div in self.driver.find_element(By.CSS_SELECTOR, 'div[data-test-id="reference"]')
-                .find_element(By.CSS_SELECTOR, 'div.citation-list__citations')
-                .find_elements(By.XPATH, './/div[@data-paper-id]')]
+        references_section = next(iter(self.driver.find_elements(By.CSS_SELECTOR, 'div[data-test-id="reference"]')),
+                                  None)
+        if references_section:
+            return [div.get_attribute('data-paper-id')
+                    for div in references_section
+                    .find_element(By.CSS_SELECTOR, 'div.citation-list__citations')
+                    .find_elements(By.XPATH, './/div[@data-paper-id]')]
+        return []
 
 
 def main(args: argparse.Namespace):
