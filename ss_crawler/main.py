@@ -131,10 +131,12 @@ class SemanticScholarCrawler:
     def get_next(self):
         id_ = self.queue.pop(0)
         paper = self.crawl_paper(id_)
+        while any(not ref for ref in paper.references):
+            cache.get_cache().delete(f'ss-paper:{id_}')
+            print(f'Paper {id_} has missing references, recrawling')
+            paper = self.crawl_paper(id_)
         self.papers.append(paper)
         self.queue.extend(paper.references)
-        if any(not ref for ref in paper.references):
-            print(f'Paper {paper.id} has empty reference: {paper.references}')
 
     @Paper.deserialize
     @cache.cache_string(get_cache_key=lambda self, id_: f'ss-paper:{id_}')
@@ -204,10 +206,11 @@ class SemanticScholarCrawler:
         references_section = next(iter(self.driver.find_elements(By.CSS_SELECTOR, 'div[data-test-id="reference"]')),
                                   None)
         if references_section:
-            return [div.get_attribute('data-paper-id')
+            return [id_
                     for div in references_section
                     .find_element(By.CSS_SELECTOR, 'div.citation-list__citations')
-                    .find_elements(By.XPATH, './/div[@data-paper-id]')]
+                    .find_elements(By.XPATH, './/div[@data-paper-id]')
+                    if (id_ := div.get_attribute('data-paper-id'))]
         return []
 
 
