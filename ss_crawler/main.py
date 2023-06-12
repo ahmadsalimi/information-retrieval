@@ -277,7 +277,7 @@ def main(args: argparse.Namespace):
             ))
 
     with open(args.output, 'w') as f:
-        json.dump([asdict(paper) for paper in crawler.papers], f, indent=2)
+        json.dump([asdict(paper) for paper in crawler.papers], f, indent=2, ensure_ascii=False)
 
 
 if __name__ == '__main__':
