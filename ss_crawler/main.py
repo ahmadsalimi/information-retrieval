@@ -5,6 +5,7 @@ from dataclasses import dataclass, asdict
 import json
 import logging
 import time
+import traceback
 from typing import List
 
 from redis_decorators import RedisCaching
@@ -45,21 +46,22 @@ class Paper:
         return wrapper
 
 
-def retry(func=None, max_retries: int = 5):
+def retry(func=None):
+    # exponential backoff
     def decorator(func):
         def wrapper(*args, **kwargs):
-            exp = None
-            for i in range(max_retries + 1):
+            wait_time = WAIT_TIME
+            i = 1
+            while True:
                 try:
                     return func(*args, **kwargs)
-                except Exception as e:
-                    exp = e
+                except:
                     print(f'Failed to call {func.__name__}({args}, {kwargs})')
-                    print(e)
-                    if i < max_retries:
-                        print(f'Retry {i + 1}/{max_retries}')
+                    traceback.print_exc()
+                    print(f'Retry {i} after {wait_time:.2f}s wait')
                     time.sleep(WAIT_TIME)
-            raise exp
+                    i += 1
+                    wait_time *= 2
         return wrapper
 
     if func:
