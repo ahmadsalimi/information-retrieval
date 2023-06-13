@@ -12,3 +12,4 @@ seaborn
 fasttext
 pillow>=9.1.0
 wordcloud
+networkx
