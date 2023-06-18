@@ -5,9 +5,9 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-COPY . .
-
 RUN python -m spacy download en_core_web_md
+
+COPY . .
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
