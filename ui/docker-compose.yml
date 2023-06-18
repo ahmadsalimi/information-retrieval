@@ -9,3 +9,4 @@ services:
       - ./../data/:/data
       - ./../results/:/results
       - ./../drive/:/drive
+      - ./nltk_data/:/root/nltk_data
