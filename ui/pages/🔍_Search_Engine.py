@@ -2,6 +2,7 @@ import json
 from enum import Enum
 from typing import List
 
+import pandas as pd
 import streamlit as st
 
 st.set_page_config(page_title="Search Engine", page_icon="🔍")
@@ -83,6 +84,12 @@ def load_data(dataset: Dataset):
     return corpus
 
 
+@st.cache_data
+def process_arxiv_data(_data: pd.DataFrame) -> pd.Series:
+    return _data['titles'].str.cat(_data['abstracts'], sep=' ') \
+        .apply(preprocess_text).str.join(' ')
+
+
 info = st.sidebar.info('Processing documents')
 corpus = load_data(dataset)
 
@@ -126,8 +133,7 @@ if corpus:
         info.info('Loading document embeddings')
         docs_embedding = load_docs_embedding('../drive/MyDrive/arxiv-sbert-embeddings.npy')[corpus.random_indices]
         info.info('Preprocessing the documents')
-        preprocessed_documents = corpus.data['titles'].str.cat(corpus.data['abstracts'], sep=' ')\
-            .apply(preprocess_text).str.join(' ')
+        preprocessed_documents = process_arxiv_data(corpus.data)
         info.info('Clustering the documents')
         kmeans_dict = cluster_kmeans(docs_embedding, preprocessed_documents, 3)
         info.success(f'Loaded {len(corpus)} documents')
