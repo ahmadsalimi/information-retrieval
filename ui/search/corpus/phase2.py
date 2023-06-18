@@ -14,17 +14,17 @@ class Corpus:
     def __init__(self, dataset_path: str, stop_topk: int = 30,
                  progress_bar: st.delta_generator.DeltaGenerator = None,
                  sample_max_size: int = 10000):
-        self.data = self.load_data(dataset_path)
-        self.random_indices = np.random.choice(len(self.data), min(len(self.data), sample_max_size), replace=False)
+        self.data = self.load_data(dataset_path, sample_max_size)
         self.data = self.data.iloc[self.random_indices]
         self.stop_topk = stop_topk
         self.progress_bar = progress_bar
 
-    @staticmethod
-    def load_data(dataset_path: str) -> pd.DataFrame:
+    def load_data(self, dataset_path: str, sample_max_size: int) -> pd.DataFrame:
         df = pd.read_csv(dataset_path).fillna('')
         df['category'] = df['terms'].apply(lambda l: eval(l)[0])
         df = df.drop_duplicates(['titles']).drop_duplicates(['abstracts']).reset_index(drop=True)
+        self.random_indices = np.random.choice(len(df), min(len(df), sample_max_size), replace=False)
+        df = df.iloc[self.random_indices].reset_index(drop=True)
         df['paper_id'] = df.index.astype(str)
         return df
 
