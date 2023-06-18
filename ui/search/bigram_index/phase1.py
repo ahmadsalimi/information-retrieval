@@ -27,7 +27,7 @@ def get_word_bigrams(word: str) -> Iterable[str]:
     return [word[i:i + 2] for i in range(len(word) - 1)]
 
 
-@st.cache_data(persist=True)
+@st.cache_data
 def create_bigram_index(dataset: str, _corpus: Corpus) -> Dict[str, Dict[str, int]]:
     """
     Creates a bigram index for the spell correction

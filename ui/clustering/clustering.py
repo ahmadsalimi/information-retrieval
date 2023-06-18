@@ -7,7 +7,7 @@ from tqdm import tqdm
 from clustering.preprocess import find_main_topic
 
 
-@st.cache_data(persist=True)
+@st.cache_data
 def cluster_kmeans(_emb_vecs: np.ndarray, _processed_documents: pd.Series, n_clusters: int):
     """Clusters input vectors using K-means method from scratch
 
