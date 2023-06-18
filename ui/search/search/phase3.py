@@ -123,7 +123,7 @@ def search(corpus: Corpus,
             Retrieved documents with snippet
     """
     corrected_query = correct_text(bigram_index, query)
-
+    yield corrected_query
     query_tokens = [token.processed
                     for token in clean_data(corrected_query)
                     if token.processed not in corpus.stop_tokens]
@@ -217,4 +217,4 @@ def search(corpus: Corpus,
         for i, (doc_id, score) in enumerate(sorted(combined_scores.items(), key=lambda x: x[1], reverse=True))
         if i < max_result_count or max_result_count == -1
     ]
-    return documents
+    yield documents

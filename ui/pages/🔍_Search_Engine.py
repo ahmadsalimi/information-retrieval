@@ -123,7 +123,7 @@ if corpus:
         info.info('Constructing bigram indices')
         bigram_index = create_bigram_index_phase2(dataset.value[0], corpus)
         info.info('Loading document embeddings')
-        docs_embedding = load_docs_embedding('../drive/MyDrive/arxiv-sbert-embeddings.npy')
+        docs_embedding = load_docs_embedding('../drive/MyDrive/arxiv-sbert-embeddings.npy')[corpus.random_indices]
         info.info('Preprocessing the documents')
         preprocessed_documents = corpus.data['titles'].str.cat(corpus.data['abstracts'], sep=' ')\
             .apply(preprocess_text).str.join(' ')
@@ -154,7 +154,7 @@ if corpus:
                 st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
                 st.markdown(f'Score: {result.score}')
                 st.markdown(f'Category: {result.category}')
-                st.markdown(f'Cluster: {kmeans_dict[result.doc_id]}')
+                st.markdown(f'Cluster: {kmeans_dict["main_topics"][kmeans_dict["cluster_indices"][int(result.doc_id)]]}')
                 st.markdown(f'#### Abstract')
                 st.markdown(result.abstract, unsafe_allow_html=True)
                 st.markdown('---')
