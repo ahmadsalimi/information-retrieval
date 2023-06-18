@@ -33,7 +33,7 @@ select_random = st.sidebar.button('Select Random Paper')
 if select_random:
     paper_id = np.random.choice(data['paper_id'].tolist())
     st.markdown(f'## {data.loc[int(paper_id), "titles"]}')
-    st.markdown(f'### Category: {data.loc[int(paper_id), "category"]}')
+    st.markdown(f'Category: {data.loc[int(paper_id), "category"]}')
     st.markdown('### Abstract')
     st.markdown(data.loc[int(paper_id), 'abstracts'])
 

@@ -103,13 +103,14 @@ if corpus:
         search_button = st.sidebar.button('Search')
 
         if search_button:
-            search_handle = search_phase1(corpus, trie, bigram_index, query, max_result_count,
-                                          method=ranking_method.value,
-                                          highlight=True,
-                                          weight=title_weight)
-            corrected_query: str = next(search_handle)
-            st.markdown(f'## Query: {corrected_query}')
-            results: List[SearchResultPhase1] = next(search_handle)
+            with st.sidebar.spinner('Searching...'):
+                search_handle = search_phase1(corpus, trie, bigram_index, query, max_result_count,
+                                              method=ranking_method.value,
+                                              highlight=True,
+                                              weight=title_weight)
+                corrected_query: str = next(search_handle)
+                st.markdown(f'## Query: {corrected_query}')
+                results: List[SearchResultPhase1] = next(search_handle)
             for i, result in enumerate(results):
                 st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
                 st.markdown(f'Score: {result.score}')
@@ -142,14 +143,15 @@ if corpus:
         search_button = st.sidebar.button('Search')
 
         if search_button:
-            search_handle = search_phase2(corpus, trie, bigram_index, query, max_result_count,
-                                          method=ranking_method.value,
-                                          highlight=True,
-                                          category=category.value,
-                                          weight=title_weight)
-            corrected_query: str = next(search_handle)
-            st.markdown(f'## Query: {corrected_query}')
-            results: List[SearchResultPhase2] = next(search_handle)
+            with st.sidebar.spinner('Searching...'):
+                search_handle = search_phase2(corpus, trie, bigram_index, query, max_result_count,
+                                              method=ranking_method.value,
+                                              highlight=True,
+                                              category=category.value,
+                                              weight=title_weight)
+                corrected_query: str = next(search_handle)
+                st.markdown(f'## Query: {corrected_query}')
+                results: List[SearchResultPhase2] = next(search_handle)
             for i, result in enumerate(results):
                 st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
                 st.markdown(f'Score: {result.score}')
@@ -180,15 +182,16 @@ if corpus:
         search_button = st.sidebar.button('Search')
 
         if search_button:
-            search_handle = search_phase3(corpus, trie, bigram_index, query, max_result_count,
-                                          method=ranking_method.value,
-                                          highlight=True,
-                                          weight=title_weight,
-                                          personalization_weight=personalization_weight,
-                                          preference_by_professor=preference_by_professor)
-            corrected_query: str = next(search_handle)
-            st.markdown(f'## Query: {corrected_query}')
-            results: List[SearchResultPhase3] = next(search_handle)
+            with st.sidebar.spinner('Searching...'):
+                search_handle = search_phase3(corpus, trie, bigram_index, query, max_result_count,
+                                              method=ranking_method.value,
+                                              highlight=True,
+                                              weight=title_weight,
+                                              personalization_weight=personalization_weight,
+                                              preference_by_professor=preference_by_professor)
+                corrected_query: str = next(search_handle)
+                st.markdown(f'## Query: {corrected_query}')
+                results: List[SearchResultPhase3] = next(search_handle)
             for i, result in enumerate(results):
                 st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
                 st.markdown(f'Score: {result.score} - '
