@@ -63,7 +63,7 @@ class SearchClient(ABC):
         pass
 
     @abstractmethod
-    def _show_result(self, result: Any):
+    def _show_result(self, i: int, result: Any):
         pass
 
     def search(self, query: str):
@@ -78,7 +78,7 @@ class SearchClient(ABC):
                                         in zip(response.corrected_query.split(" "), query.split(" "))])
             query_placeholder.markdown(f'## Query: {corrected_query}', unsafe_allow_html=True)
             for i, result in enumerate(response.hits):
-                self._show_result(result)
+                self._show_result(i, result)
 
 
 class Phase1SearchClient(SearchClient):
@@ -93,7 +93,7 @@ class Phase1SearchClient(SearchClient):
             **self.extra_inputs,
         ))
 
-    def _show_result(self, result: Phase1Paper):
+    def _show_result(self, i: int, result: Phase1Paper):
         st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
         st.markdown(f'Score: {result.score}')
         st.markdown(f'#### Abstract')
@@ -121,7 +121,7 @@ class Phase2SearchClient(SearchClient):
             **self.extra_inputs,
         ))
 
-    def _show_result(self, result: Phase2Paper):
+    def _show_result(self, i: int, result: Phase2Paper):
         st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
         st.markdown(f'Score: {result.score}')
         st.markdown(f'Category: {result.category}')
@@ -153,7 +153,7 @@ class Phase3SearchClient(SearchClient):
             **self.extra_inputs,
         ))
 
-    def _show_result(self, result: Phase3Paper):
+    def _show_result(self, i: int, result: Phase3Paper):
         st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
         st.markdown(f'Score: {result.score} - '
                     f'Search Score: {result.search_score} - '
