@@ -3,7 +3,7 @@ from enum import Enum
 import grpc
 import streamlit as st
 
-from api.v1.mir_pb2 import Phase1SearchRequest, Phase2SearchRequest
+from api.v1.mir_pb2 import Phase1SearchRequest, Phase2SearchRequest, Phase3SearchRequest
 from api.v1.mir_pb2_grpc import SearchServiceStub
 
 st.set_page_config(page_title="Search Engine", page_icon="🔍")
@@ -117,7 +117,7 @@ elif dataset == Dataset.SemanticScholar:
         with st.spinner('Searching...'):
             with grpc.insecure_channel('backend:50051') as channel:
                 stub = SearchServiceStub(channel)
-                response = stub.Phase2Search(Phase2SearchRequest(
+                response = stub.Phase3Search(Phase3SearchRequest(
                     query=query,
                     max_result_count=max_result_count,
                     ranking_method=ranking_method.value,
