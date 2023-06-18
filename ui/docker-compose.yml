@@ -14,9 +14,12 @@ services:
     restart: unless-stopped
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - /user/ubuntu/worker/server/certs:/etc/nginx/certs:ro
+      - /home/ubuntu/worker/server/certs:/etc/nginx/certs:ro
       - ./passwords:/etc/nginx/raw_passwords:ro
     ulimits:
       nofile:
         soft: 65536
         hard: 65536
+    ports:
+      - "81:81"
+      - "444:444"
