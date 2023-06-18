@@ -52,7 +52,6 @@ class SearchClient(ABC):
         self.title_weight = title_weight
         self.max_result_count = max_result_count
         self.extra_inputs = self._create_extra_inputs()
-        self.re_run = None
 
     def _create_extra_inputs(self) -> Dict[str, Any]:
         return {}
@@ -68,14 +67,11 @@ class SearchClient(ABC):
     def search(self, query: str):
         with grpc.insecure_channel('backend:50051') as channel:
             t1 = time.time()
-            stub = SearchServiceStub(channel)
-            response = self._call_search(stub, query)
+            with st.spinner('Searching...'):
+                stub = SearchServiceStub(channel)
+                response = self._call_search(stub, query)
             t2 = time.time()
-            col1, col2 = st.columns(2)
-            with col1:
-                st.success(f'Search done in {t2 - t1:.2f} seconds')
-            with col2:
-                self.re_run = st.button('Re-run')
+            st.success(f'Search done in {t2 - t1:.2f} seconds')
             corrected_query = ' '.join([corrected if corrected == actual else f'<b><i>{corrected}</i></b>'
                                         for corrected, actual
                                         in zip(response.corrected_query.split(" "), query.split(" "))])
@@ -191,14 +187,13 @@ ranking_method = RankingMethod[
     st.sidebar.selectbox('Ranking method', RankingMethod.__members__, format_func=lambda x: RankingMethod[x].value)]
 title_weight = st.sidebar.slider('Title weight', 0.0, 1.0, 0.5)
 
+search_client = get_search_client_class(dataset)(dataset,
+                                                 ranking_method,
+                                                 title_weight,
+                                                 max_result_count)
+
 query = st.text_input('Enter your query here')
+search_button = st.button('Search', type='primary', use_container_width=True)
 
-if query:
-    search_client = get_search_client_class(dataset)(dataset,
-                                                     ranking_method,
-                                                     title_weight,
-                                                     max_result_count)
+if query and search_button:
     search_client.search(query)
-
-    if search_client.re_run:
-        search_client.search(query)
