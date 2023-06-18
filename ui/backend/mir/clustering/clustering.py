@@ -4,7 +4,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from mir.clustering.preprocess import find_main_topic
-from mir.search.common import pickle_cache
+from mir.util import pickle_cache
 
 
 @pickle_cache(args_for_hash=['emb_vecs', 'n_clusters'])

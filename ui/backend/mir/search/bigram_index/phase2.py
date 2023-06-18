@@ -2,7 +2,7 @@ from typing import Iterable, Dict
 
 from nltk.metrics import distance as nltkd
 
-from mir.search.common import pickle_cache
+from mir.util import pickle_cache
 from mir.search.corpus.phase2 import Corpus
 from mir.search.preprocess import nlp
 

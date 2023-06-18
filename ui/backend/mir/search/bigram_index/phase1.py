@@ -4,7 +4,7 @@ from nltk.metrics import distance as nltkd
 
 from mir.search.corpus.phase1 import Corpus
 from mir.search.preprocess import nlp
-from mir.search.common import pickle_cache
+from mir.util import pickle_cache
 
 WORD_BOUNDARY_CHAR = '¶'
 

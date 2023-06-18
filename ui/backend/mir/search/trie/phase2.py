@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 from mir.search.corpus.phase1 import Corpus
 from mir.search.token import Token
-from mir.search.common import pickle_cache
+from mir.util import pickle_cache
 
 
 class TrieNode:
