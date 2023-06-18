@@ -16,4 +16,4 @@ services:
       - ./../results/:/results
       - ./../drive/:/drive
       - ./nltk_data/:/root/nltk_data
-      - ./cache:/cache
+      - ./cache:/root/cache
