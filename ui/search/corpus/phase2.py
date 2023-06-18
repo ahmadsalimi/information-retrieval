@@ -15,7 +15,6 @@ class Corpus:
                  progress_bar: st.delta_generator.DeltaGenerator = None,
                  sample_max_size: int = 5000):
         self.data = self.load_data(dataset_path, sample_max_size)
-        self.data = self.data.iloc[self.random_indices]
         self.stop_topk = stop_topk
         self.progress_bar = progress_bar
 
