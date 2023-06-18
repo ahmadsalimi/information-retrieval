@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import Dict, List, Set
 
 import numpy as np
@@ -15,6 +14,10 @@ class Corpus:
                  sample_max_size: int = 5000):
         self.data = self.load_data(dataset_path, sample_max_size)
         self.stop_topk = stop_topk
+        self.cleaned_documents = self.get_cleaned_documents()
+        self.stop_tokens = self.get_stop_tokens()
+        self.non_stop_documents = self.get_non_stop_documents()
+        self.document_ids_by_category = self.get_document_ids_by_category()
 
     def load_data(self, dataset_path: str, sample_max_size: int) -> pd.DataFrame:
         df = pd.read_csv(dataset_path).fillna('')
@@ -25,9 +28,7 @@ class Corpus:
         df['paper_id'] = df.index.astype(str)
         return df
 
-    @property
-    @lru_cache
-    def cleaned_documents(self) -> Dict[str, Dict[str, List[Token]]]:
+    def get_cleaned_documents(self) -> Dict[str, Dict[str, List[Token]]]:
         cleaned_titles = list(tqdm(batch_clean_data(self.data['titles'].tolist()),
                                    total=len(self.data), desc='Cleaning Titles'))
         cleaned_abstracts = list(tqdm(batch_clean_data(self.data['abstracts'].tolist()),
@@ -47,9 +48,7 @@ class Corpus:
             )
         }
 
-    @property
-    @lru_cache
-    def stop_tokens(self) -> Set[str]:
+    def get_stop_tokens(self) -> Set[str]:
         return find_stop_words(
             [token.processed
              for tokens in self.cleaned_documents.values()
@@ -57,9 +56,7 @@ class Corpus:
             num_token=self.stop_topk,
         )
 
-    @property
-    @lru_cache
-    def non_stop_documents(self) -> Dict[str, Dict[str, List[Token]]]:
+    def get_non_stop_documents(self) -> Dict[str, Dict[str, List[Token]]]:
         return {
             paper_id: {
                 'title': [token for token in tokens['title'] if token.processed not in self.stop_tokens],
@@ -69,9 +66,7 @@ class Corpus:
             for paper_id, tokens in self.cleaned_documents.items()
         }
 
-    @property
-    @lru_cache
-    def document_ids_by_category(self) -> Dict[str, Set[str]]:
+    def get_document_ids_by_category(self) -> Dict[str, Set[str]]:
         return {
             category: set(self.data[self.data['category'] == category]['paper_id'].tolist())
             for category in self.data['category'].unique()
