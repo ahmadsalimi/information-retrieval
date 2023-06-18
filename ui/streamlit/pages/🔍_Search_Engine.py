@@ -46,13 +46,11 @@ class SearchClient(ABC):
     def __init__(self, dataset: Dataset,
                  ranking_method: RankingMethod,
                  title_weight: float,
-                 max_result_count: int,
-                 query_placeholder: st.delta_generator.DeltaGenerator):
+                 max_result_count: int):
         self.dataset = dataset
         self.ranking_method = ranking_method
         self.title_weight = title_weight
         self.max_result_count = max_result_count
-        self.query_placeholder = query_placeholder
         self.extra_inputs = self._create_extra_inputs()
 
     def _create_extra_inputs(self) -> Dict[str, Any]:
@@ -76,7 +74,8 @@ class SearchClient(ABC):
             corrected_query = ' '.join([corrected if corrected == actual else f'<b><i>{corrected}</i></b>'
                                         for corrected, actual
                                         in zip(response.corrected_query.split(" "), query.split(" "))])
-            query_placeholder.markdown(f'## Query: {corrected_query}', unsafe_allow_html=True)
+            if corrected_query != query:
+                st.markdown(f'Query: {corrected_query}', unsafe_allow_html=True)
             for i, result in enumerate(response.hits):
                 self._show_result(i, result)
 
@@ -187,20 +186,11 @@ ranking_method = RankingMethod[
     st.sidebar.selectbox('Ranking method', RankingMethod.__members__, format_func=lambda x: RankingMethod[x].value)]
 title_weight = st.sidebar.slider('Title weight', 0.0, 1.0, 0.5)
 
-col1, col2 = st.columns(2)
-with col1:
-    query = st.text_input('Enter your query here')
-
-with col2:
-    search_button = st.button('Search')
+query = st.text_input('Enter your query here')
 
 if query:
-    query_placeholder = st.markdown(f'## Query: {query}')
-
-if search_button and query:
     search_client = get_search_client_class(dataset)(dataset,
                                                      ranking_method,
                                                      title_weight,
-                                                     max_result_count,
-                                                     query_placeholder)
+                                                     max_result_count)
     search_client.search(query)
