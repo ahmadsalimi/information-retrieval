@@ -197,7 +197,11 @@ with col2:
 if query:
     query_placeholder = st.markdown(f'## Query: {query}')
 
-search_client = get_search_client_class(dataset)(dataset, max_result_count, ranking_method, title_weight)
+search_client = get_search_client_class(dataset)(dataset,
+                                                 ranking_method,
+                                                 title_weight,
+                                                 max_result_count,
+                                                 query_placeholder)
 
 if search_button and query:
     search_client.search(query)
