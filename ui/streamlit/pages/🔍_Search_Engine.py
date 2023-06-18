@@ -52,6 +52,7 @@ class SearchClient(ABC):
         self.title_weight = title_weight
         self.max_result_count = max_result_count
         self.extra_inputs = self._create_extra_inputs()
+        self.re_run = None
 
     def _create_extra_inputs(self) -> Dict[str, Any]:
         return {}
@@ -70,12 +71,16 @@ class SearchClient(ABC):
             stub = SearchServiceStub(channel)
             response = self._call_search(stub, query)
             t2 = time.time()
-            st.success(f'Search done in {t2 - t1:.2f} seconds')
+            col1, col2 = st.columns(2)
+            with col1:
+                st.success(f'Search done in {t2 - t1:.2f} seconds')
+            with col2:
+                self.re_run = st.button('Re-run')
             corrected_query = ' '.join([corrected if corrected == actual else f'<b><i>{corrected}</i></b>'
                                         for corrected, actual
                                         in zip(response.corrected_query.split(" "), query.split(" "))])
             if corrected_query != query:
-                st.markdown(f'Query: {corrected_query}', unsafe_allow_html=True)
+                st.markdown(f'Corrected query: {corrected_query}', unsafe_allow_html=True)
             for i, result in enumerate(response.hits):
                 self._show_result(i, result)
 
@@ -194,3 +199,6 @@ if query:
                                                      title_weight,
                                                      max_result_count)
     search_client.search(query)
+
+    if search_client.re_run:
+        search_client.search(query)
