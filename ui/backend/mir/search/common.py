@@ -63,9 +63,9 @@ class Phase3Professors(Enum):
 @pickle_cache
 def load_corpus(dataset: Literal['ai-bio', 'hardware-system', 'arxiv', 'ss']):
     if dataset in ('ai-bio', 'hardware-system'):
-        corpus = Phase1Corpus(dataset, stop_topk=20)
+        return Phase1Corpus(dataset, stop_topk=20)
     elif dataset == 'arxiv':
-        corpus = Phase2Corpus('../data/arxiv/arxiv_data_210930-054931.csv', stop_topk=20)
+        return Phase2Corpus('../data/arxiv/arxiv_data_210930-054931.csv', stop_topk=20)
     elif dataset == 'ss':
         papers_by_id = {}
         papers_by_professor = {}
@@ -75,11 +75,9 @@ def load_corpus(dataset: Literal['ai-bio', 'hardware-system', 'arxiv', 'ss']):
                 for paper in papers_by_professor[professor.value]:
                     papers_by_id[paper['id']] = paper
         all_papers = list(papers_by_id.values())
-        corpus = Phase3Corpus(papers_by_professor, all_papers, stop_topk=20)
+        return Phase3Corpus(papers_by_professor, all_papers, stop_topk=20)
     else:
         raise ValueError(f'Unknown dataset {dataset}')
-    _ = corpus.non_stop_documents
-    return corpus
 
 
 def load_phase1(dataset: Literal['ai-bio', 'hardware-system']):

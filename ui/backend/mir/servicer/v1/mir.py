@@ -111,5 +111,5 @@ class SearchService(SearchServiceServicer):
         logger.info('RandomSimilarPapers: done')
         return RandomSimilarPapersResponse(
             query_paper=self.__get_similar_papers(paper_id),
-            similar_papers=[self.__get_similar_papers(paper_id) for paper_id in result]
+            similar_papers=[self.__get_similar_papers(str(paper_id)) for paper_id in result]
         )

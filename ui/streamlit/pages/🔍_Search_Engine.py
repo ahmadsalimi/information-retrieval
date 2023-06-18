@@ -3,15 +3,15 @@ from enum import Enum
 import grpc
 import streamlit as st
 
-from api.v1.mir_pb2 import Phase1SearchRequest, Phase2SearchRequest, Phase3SearchRequest
+from api.v1.mir_pb2 import Phase1SearchRequest, Phase2SearchRequest, Phase3SearchRequest, AiBio, HwSystem
 from api.v1.mir_pb2_grpc import SearchServiceStub
 
 st.set_page_config(page_title="Search Engine", page_icon="🔍")
 
 
 class Dataset(Enum):
-    AiBio = "AI & Bioinformatics", "ai-bio"
-    HwSystem = "Hardware & System", "hardware-system"
+    AiBio = "AI & Bioinformatics", AiBio
+    HwSystem = "Hardware & System", HwSystem
     ArXiv = "arXiv", "arxiv"
     SemanticScholar = "Semantic Scholar", "ss"
 
