@@ -11,6 +11,7 @@ services:
     environment:
       PORT: 50051
       NUM_WORKERS: 8
+      PYTHONUNBUFFERED: 1
     volumes:
       - ./../data/:/data
       - ./../results/:/results
