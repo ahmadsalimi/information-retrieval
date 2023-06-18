@@ -13,9 +13,10 @@ number_of_similars = st.sidebar.slider('Number of similar papers', 1, 100, 20)
 select_random = st.sidebar.button('Select Random Paper')
 
 if select_random:
-    with grpc.insecure_channel('backend:50051') as channel:
-        stub = SearchServiceStub(channel)
-        response = stub.RandomSimilarPapers(RandomSimilarPapersRequest(number_of_similars=number_of_similars))
+    with st.spinner('Finding a random paper and its similar papers'):
+        with grpc.insecure_channel('backend:50051') as channel:
+            stub = SearchServiceStub(channel)
+            response = stub.RandomSimilarPapers(RandomSimilarPapersRequest(number_of_similars=number_of_similars))
     st.markdown(f'## {response.query_paper.title}')
     st.markdown(f'Category: {response.query_paper.category}')
     st.markdown('### Abstract')

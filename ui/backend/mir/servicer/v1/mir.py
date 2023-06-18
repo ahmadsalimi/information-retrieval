@@ -16,6 +16,9 @@ from mir.search.search.phase1 import search as phase1_search, SearchResult as Ph
 from mir.search.search.phase2 import search as phase2_search, SearchResult as Phase2SearchResult
 from mir.search.search.phase3 import search as phase3_search, SearchResult as Phase3SearchResult
 from mir.server import ai_bio, hw_system, arxiv, ss, similar_papers
+from mir.util import getLogger
+
+logger = getLogger(__name__)
 
 
 class SearchService(SearchServiceServicer):
@@ -25,6 +28,7 @@ class SearchService(SearchServiceServicer):
         return ai_bio if dataset == AiBio else hw_system
 
     def Phase1Search(self, request, context: grpc.ServicerContext):
+        logger.info(f'Phase1Search: {request.dataset} - {request.query}')
         phase1 = self.get_phase1(request.dataset)
         search_handle = phase1_search(phase1.corpus,
                                       phase1.trie,
@@ -35,13 +39,16 @@ class SearchService(SearchServiceServicer):
                                       method=request.ranking_method,
                                       weight=request.title_weight)
         corrected_query: str = next(search_handle)
+        logger.info(f'Phase1Search: corrected_query: {corrected_query}')
         results: List[Phase1SearchResult] = next(search_handle)
+        logger.info('Phase1Search: done')
         return Phase1SearchResponse(
             corrected_query=corrected_query,
             hits=[Phase1Paper(**asdict(result)) for result in results],
         )
 
     def Phase2Search(self, request, context: grpc.ServicerContext):
+        logger.info(f'Phase2Search: {request.query}')
         phase2 = arxiv
         search_handle = phase2_search(phase2.corpus,
                                       phase2.trie,
@@ -54,13 +61,16 @@ class SearchService(SearchServiceServicer):
                                       category=request.category,
                                       kmeans_dict=phase2.kmeans_dict)
         corrected_query: str = next(search_handle)
+        logger.info(f'Phase2Search: corrected_query: {corrected_query}')
         results: List[Phase2SearchResult] = next(search_handle)
+        logger.info('Phase2Search: done')
         return Phase2SearchResponse(
             corrected_query=corrected_query,
             hits=[Phase2Paper(**asdict(result)) for result in results],
         )
 
     def Phase3Search(self, request, context: grpc.ServicerContext):
+        logger.info(f'Phase3Search: {request.query}')
         phase3 = ss
         search_handle = phase3_search(phase3.corpus,
                                       phase3.trie,
@@ -73,7 +83,9 @@ class SearchService(SearchServiceServicer):
                                       personalization_weight=request.personalization_weight,
                                       preference_by_professor=request.preference_by_professor)
         corrected_query: str = next(search_handle)
+        logger.info(f'Phase3Search: corrected_query: {corrected_query}')
         results: List[Phase3SearchResult] = next(search_handle)
+        logger.info('Phase3Search: done')
         return Phase3SearchResponse(
             corrected_query=corrected_query,
             hits=[Phase3Paper(**asdict(result)) for result in results],
@@ -90,9 +102,10 @@ class SearchService(SearchServiceServicer):
 
     def RandomSimilarPapers(self, request, context: grpc.ServicerContext):
         paper_id = np.random.choice(similar_papers.data['paper_id'].tolist())
+        logger.info(f'RandomSimilarPapers: {paper_id}')
         result = find_similar_docs(int(paper_id), request.number_of_similars, similar_papers.docs_embedding)
+        logger.info('RandomSimilarPapers: done')
         return RandomSimilarPapersResponse(
             query_paper=self.__get_similar_papers(paper_id),
             similar_papers=[self.__get_similar_papers(paper_id) for paper_id in result]
         )
-
