@@ -2,6 +2,7 @@ import json
 from enum import Enum
 from typing import List
 
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -72,7 +73,7 @@ def load_data(dataset: Dataset):
         papers_by_professor = {}
         for professor in Phase3Professors:
             with open(f'../results/crawled_paper_{professor.value}.json') as f:
-                papers_by_professor[professor.value] = json.load(f)
+                papers_by_professor[professor.value] = [p for p in json.load(f) if np.random.rand() < 0.5]
                 for paper in papers_by_professor[professor.value]:
                     papers_by_id[paper['id']] = paper
         all_papers = list(papers_by_id.values())
