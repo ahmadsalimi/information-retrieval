@@ -4,22 +4,7 @@ services:
   ui:
     build: .
     ports:
-      - "445:8501"
+      - "8501:8501"
     volumes:
       - ./../data/:/data
       - ./../results/:/results
-
-  nginx:
-    image: pouyaesmaili/nginx
-    restart: unless-stopped
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - /home/ubuntu/worker/server/certs:/etc/nginx/certs:ro
-      - ./passwords:/etc/nginx/raw_passwords:ro
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-    ports:
-      - "81:81"
-      - "444:444"
