@@ -193,7 +193,7 @@ search_client = get_search_client_class(dataset)(dataset,
                                                  max_result_count)
 
 query = st.text_input('Enter your query here')
-search_button = st.button('Search', type='primary', use_container_width=True)
+search_button = st.button('Search', type='secondary', use_container_width=True)
 
 if query and search_button:
     search_client.search(query)
