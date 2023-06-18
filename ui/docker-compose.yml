@@ -2,9 +2,15 @@ version: '3.9'
 
 services:
   ui:
-    build: .
+    build: streamlit
     ports:
       - "8501:8501"
+
+  backend:
+    build: backend
+    environment:
+      PORT: 50051
+      NUM_WORKERS: 8
     volumes:
       - ./../data/:/data
       - ./../results/:/results

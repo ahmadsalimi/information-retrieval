@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package v1;
+
+enum Phase1Dataset {
+  AiBio = 0;
+  HwSystem = 1;
+}
+
+message Phase1SearchRequest {
+  Phase1Dataset dataset = 1;
+  string query = 2;
+  int32 max_result_count = 3;
+  string ranking_method = 4;
+  float title_weight = 5;
+}
+
+message Phase1Paper {
+  string doc_id = 1;
+  float score = 2;
+  string title = 3;
+  string abstract = 4;
+}
+
+message Phase1SearchResponse {
+  string corrected_query = 1;
+  repeated Phase1Paper hits = 2;
+}
+
+message Phase2SearchRequest {
+  string query = 1;
+  int32 max_result_count = 2;
+  string ranking_method = 3;
+  float title_weight = 4;
+  string category = 5;
+}
+
+message Phase2Paper {
+  string doc_id = 1;
+  float score = 2;
+  string title = 3;
+  string abstract = 4;
+  string category = 5;
+  string cluster = 6;
+}
+
+message Phase2SearchResponse {
+  string corrected_query = 1;
+  repeated Phase2Paper hits = 2;
+}
+
+message Phase3SearchRequest {
+  string query = 1;
+  int32 max_result_count = 2;
+  string ranking_method = 3;
+  float title_weight = 4;
+  float personalization_weight = 5;
+  map<string, float> preference_by_professor = 6;
+}
+
+message Phase3Paper {
+  string doc_id = 1;
+  float score = 2;
+  float search_score = 3;
+  float pagerank_score = 4;
+  string title = 5;
+  string abstract = 6;
+  repeated string related_topics = 7;
+}
+
+message Phase3SearchResponse {
+  string corrected_query = 1;
+  repeated Phase2Paper hits = 2;
+}
+
+message RandomSimilarPapersRequest {
+  int32 number_of_similars = 1;
+}
+
+message SimilarPaper {
+  string doc_id = 1;
+  string title = 2;
+  string category = 3;
+  string abstract = 4;
+}
+
+message RandomSimilarPapersResponse {
+  SimilarPaper query_paper = 1;
+  repeated SimilarPaper similar_papers = 2;
+}
+
+service SearchService {
+  rpc Phase1Search(Phase1SearchRequest) returns (Phase1SearchResponse) {}
+
+  rpc Phase2Search(Phase2SearchRequest) returns (Phase2SearchResponse) {}
+
+  rpc Phase3Search(Phase3SearchRequest) returns (Phase3SearchResponse) {}
+
+  rpc RandomSimilarPapers(RandomSimilarPapersRequest) returns (RandomSimilarPapersResponse) {}
+}

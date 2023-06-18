@@ -1,0 +1,8 @@
+grpcio-tools==1.46.5
+PyYAML==6.0
+numpy
+pandas
+nltk
+scikit-learn
+tqdm
+spacy
