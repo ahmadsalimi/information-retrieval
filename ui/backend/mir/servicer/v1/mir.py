@@ -11,11 +11,10 @@ from mir.api.v1.mir_pb2 import AiBio,\
     Phase3SearchResponse, Phase3Paper,\
     RandomSimilarPapersResponse, SimilarPaper
 from mir.clustering.similar import find_similar_docs
-from mir.search.common import Phase1
+from mir.search.common import Phase1, Phase2, Phase3, SimilarPapers
 from mir.search.search.phase1 import search as phase1_search, SearchResult as Phase1SearchResult
 from mir.search.search.phase2 import search as phase2_search, SearchResult as Phase2SearchResult
 from mir.search.search.phase3 import search as phase3_search, SearchResult as Phase3SearchResult
-from mir.server import ai_bio, hw_system, arxiv, ss, similar_papers
 from mir.util import getLogger
 
 logger = getLogger(__name__)
@@ -23,9 +22,15 @@ logger = getLogger(__name__)
 
 class SearchService(SearchServiceServicer):
 
-    @staticmethod
-    def get_phase1(dataset) -> Phase1:
-        return ai_bio if dataset == AiBio else hw_system
+    def __init__(self, ai_bio: Phase1, hw_system: Phase1, arxiv: Phase2, ss: Phase3, similar_papers: SimilarPapers):
+        self.ai_bio = ai_bio
+        self.hw_system = hw_system
+        self.arxiv = arxiv
+        self.ss = ss
+        self.similar_papers = similar_papers
+
+    def get_phase1(self, dataset) -> Phase1:
+        return self.ai_bio if dataset == AiBio else self.hw_system
 
     def Phase1Search(self, request, context: grpc.ServicerContext):
         logger.info(f'Phase1Search: {request.dataset} - {request.query}')
@@ -49,7 +54,7 @@ class SearchService(SearchServiceServicer):
 
     def Phase2Search(self, request, context: grpc.ServicerContext):
         logger.info(f'Phase2Search: {request.query}')
-        phase2 = arxiv
+        phase2 = self.arxiv
         search_handle = phase2_search(phase2.corpus,
                                       phase2.trie,
                                       phase2.bigram_index,
@@ -71,7 +76,7 @@ class SearchService(SearchServiceServicer):
 
     def Phase3Search(self, request, context: grpc.ServicerContext):
         logger.info(f'Phase3Search: {request.query}')
-        phase3 = ss
+        phase3 = self.ss
         search_handle = phase3_search(phase3.corpus,
                                       phase3.trie,
                                       phase3.bigram_index,
@@ -91,19 +96,18 @@ class SearchService(SearchServiceServicer):
             hits=[Phase3Paper(**asdict(result)) for result in results],
         )
 
-    @staticmethod
-    def __get_similar_papers(paper_id: str) -> SimilarPaper:
+    def __get_similar_papers(self, paper_id: str) -> SimilarPaper:
         return SimilarPaper(
             doc_id=paper_id,
-            title=similar_papers.data.loc[int(paper_id), "titles"],
-            category=similar_papers.data.loc[int(paper_id), "category"],
-            abstract=similar_papers.data.loc[int(paper_id), "abstracts"],
+            title=self.similar_papers.data.loc[int(paper_id), "titles"],
+            category=self.similar_papers.data.loc[int(paper_id), "category"],
+            abstract=self.similar_papers.data.loc[int(paper_id), "abstracts"],
         )
 
     def RandomSimilarPapers(self, request, context: grpc.ServicerContext):
-        paper_id = np.random.choice(similar_papers.data['paper_id'].tolist())
+        paper_id = np.random.choice(self.similar_papers.data['paper_id'].tolist())
         logger.info(f'RandomSimilarPapers: {paper_id}')
-        result = find_similar_docs(int(paper_id), request.number_of_similars, similar_papers.docs_embedding)
+        result = find_similar_docs(int(paper_id), request.number_of_similars, self.similar_papers.docs_embedding)
         logger.info('RandomSimilarPapers: done')
         return RandomSimilarPapersResponse(
             query_paper=self.__get_similar_papers(paper_id),

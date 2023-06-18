@@ -30,22 +30,6 @@ class GracefulKiller:
         self.__event.wait()
 
 
-ai_bio = None
-hw_system = None
-arxiv = None
-ss = None
-similar_papers = None
-
-
-def set_global(ai_bio_: Phase1, hw_system_: Phase1, arxiv_: Phase2, ss_: Phase3, similar_papers_: SimilarPapers):
-    global ai_bio, hw_system, arxiv, ss, similar_papers
-    ai_bio = ai_bio_
-    hw_system = hw_system_
-    arxiv = arxiv_
-    ss = ss_
-    similar_papers = similar_papers_
-
-
 def serve(config: Config):
     logger.info('starting server')
 
@@ -58,11 +42,8 @@ def serve(config: Config):
     arxiv = load_phase2()
     ss = load_phase3()
     similar_papers = load_similar_papers()
-    set_global(ai_bio, hw_system, arxiv, ss, similar_papers)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=config.grpc.num_workers))
-                                                     # initializer=set_global,
-                                                     # initargs=(ai_bio, hw_system, arxiv, ss, similar_papers)))
-    settings.SERVICER_ADDER(settings.SERVICE(), server)
+    settings.SERVICER_ADDER(settings.SERVICE(ai_bio, hw_system, arxiv, ss, similar_papers), server)
 
     listen_addr = f'[::]:{config.grpc.listen_port}'
     server.add_insecure_port(listen_addr)
