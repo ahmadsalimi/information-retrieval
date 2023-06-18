@@ -8,7 +8,7 @@ import streamlit as st
 from search.token import Token
 
 
-@st.cache_resource()
+@st.cache_resource
 def get_nlp() -> spacy.Language:
     try:
         print('Loading spacy model')

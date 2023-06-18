@@ -110,7 +110,7 @@ if corpus:
         search_button = st.sidebar.button('Search')
 
         if search_button:
-            with st.sidebar.spinner('Searching...'):
+            with st.spinner('Searching...'):
                 search_handle = search_phase1(corpus, trie, bigram_index, query, max_result_count,
                                               method=ranking_method.value,
                                               highlight=True,
@@ -149,7 +149,7 @@ if corpus:
         search_button = st.sidebar.button('Search')
 
         if search_button:
-            with st.sidebar.spinner('Searching...'):
+            with st.spinner('Searching...'):
                 search_handle = search_phase2(corpus, trie, bigram_index, query, max_result_count,
                                               method=ranking_method.value,
                                               highlight=True,
@@ -188,7 +188,7 @@ if corpus:
         search_button = st.sidebar.button('Search')
 
         if search_button:
-            with st.sidebar.spinner('Searching...'):
+            with st.spinner('Searching...'):
                 search_handle = search_phase3(corpus, trie, bigram_index, query, max_result_count,
                                               method=ranking_method.value,
                                               highlight=True,

@@ -10,3 +10,4 @@ services:
       - ./../results/:/results
       - ./../drive/:/drive
       - ./nltk_data/:/root/nltk_data
+      - ./streamlit-cache/:/root/.streamlit/cache
