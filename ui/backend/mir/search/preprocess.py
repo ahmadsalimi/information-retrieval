@@ -36,7 +36,7 @@ def batch_clean_data(texts: List[str], batch_size: int = 128) -> Iterator[List[T
         A list of lists of tokens
     """
     yield from ([Token.from_spacy_token(token) for token in doc if not token.is_punct]
-                for doc in nlp.pipe(texts, batch_size=batch_size, n_process=-1))
+                for doc in nlp.pipe(texts, batch_size=batch_size, n_process=1))
 
 
 def clean_data(text: str) -> List[Token]:
