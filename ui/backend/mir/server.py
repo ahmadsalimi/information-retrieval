@@ -8,8 +8,7 @@ import nltk
 
 from mir.config.config import Config
 from mir.config import settings
-from mir.search.common import load_phase1, load_phase2, load_phase3, load_similar_papers, Phase1, Phase2, Phase3, \
-    SimilarPapers
+from mir.search.common import load_phase1, load_phase2, load_phase3, load_similar_papers
 from mir.util import getLogger
 
 logger = getLogger(__name__)

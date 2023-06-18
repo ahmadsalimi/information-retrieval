@@ -3,7 +3,7 @@ from typing import Dict, Literal, List, Iterator
 
 from mir.search.bigram_index.phase1 import correct_text
 from mir.search.corpus.phase1 import Corpus
-from mir.search.preprocess import clean_data
+from mir.search.preprocess import clean_data, nlp
 from mir.search.search.common import tf_idf, okapi25, highlight_text
 from mir.search.trie.phase1 import TrieNode
 
@@ -51,7 +51,7 @@ def search(corpus: Corpus, trie: TrieNode, bigram_index: Dict[str, Dict[str, int
     corrected_query = correct_text(bigram_index, query)
     yield corrected_query
     query_tokens = [token.processed
-                    for token in clean_data(corrected_query)
+                    for token in nlp(corrected_query)
                     if token.processed not in corpus.stop_tokens]
     token_search_results: Dict[str, Dict[str, Dict[Literal['title', 'abstract'], List[int]]]] = {
         token: trie.search(token) or {}
