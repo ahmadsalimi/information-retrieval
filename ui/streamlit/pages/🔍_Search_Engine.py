@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 
 import grpc
@@ -54,6 +55,7 @@ if dataset in (Dataset.AiBio, Dataset.HwSystem):
     search_button = st.sidebar.button('Search')
 
     if search_button:
+        t1 = time.time()
         with st.spinner('Searching...'):
             with grpc.insecure_channel('backend:50051') as channel:
                 stub = SearchServiceStub(channel)
@@ -64,7 +66,8 @@ if dataset in (Dataset.AiBio, Dataset.HwSystem):
                     ranking_method=ranking_method.value,
                     title_weight=title_weight,
                 ))
-
+        t2 = time.time()
+        st.success(f'Search done in {t2 - t1:.2f} seconds')
         st.markdown(f'## Query: {response.corrected_query}')
         for i, result in enumerate(response.hits):
             st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
@@ -82,6 +85,7 @@ elif dataset == Dataset.ArXiv:
     search_button = st.sidebar.button('Search')
 
     if search_button:
+        t1 = time.time()
         with st.spinner('Searching...'):
             with grpc.insecure_channel('backend:50051') as channel:
                 stub = SearchServiceStub(channel)
@@ -92,7 +96,8 @@ elif dataset == Dataset.ArXiv:
                     title_weight=title_weight,
                     category=category.value,
                 ))
-
+        t2 = time.time()
+        st.success(f'Search done in {t2 - t1:.2f} seconds')
         st.markdown(f'## Query: {response.corrected_query}')
         for i, result in enumerate(response.hits):
             st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
@@ -114,6 +119,7 @@ elif dataset == Dataset.SemanticScholar:
     search_button = st.sidebar.button('Search')
 
     if search_button:
+        t1 = time.time()
         with st.spinner('Searching...'):
             with grpc.insecure_channel('backend:50051') as channel:
                 stub = SearchServiceStub(channel)
@@ -125,7 +131,8 @@ elif dataset == Dataset.SemanticScholar:
                     personalization_weight=personalization_weight,
                     preference_by_professor=preference_by_professor,
                 ))
-
+        t2 = time.time()
+        st.success(f'Search done in {t2 - t1:.2f} seconds')
         st.markdown(f'## Query: {response.corrected_query}')
         for i, result in enumerate(response.hits):
             st.markdown(f'### {i + 1}. {result.title}', unsafe_allow_html=True)
