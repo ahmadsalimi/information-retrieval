@@ -16,7 +16,6 @@ from mir.clustering.preprocess import preprocess_text
 from mir.search.corpus.phase1 import Corpus as Phase1Corpus
 from mir.search.corpus.phase2 import Corpus as Phase2Corpus
 from mir.search.corpus.phase3 import Corpus as Phase3Corpus
-from mir.search.preprocess import load_nlp
 from mir.search.trie.phase1 import TrieNode as Phase1TrieNode,\
     construct_positional_indexes as phase1_construct_positional_indexes
 from mir.search.trie.phase2 import TrieNode as Phase2TrieNode,\
@@ -143,8 +142,7 @@ class DependentRunner:
 def load_languages(executor: futures.ThreadPoolExecutor) -> Tuple[DependentRunner, ...]:
     stopwords = DependentRunner(lambda: nltk.download('stopwords')).submit_to(executor)
     punkt = DependentRunner(lambda: nltk.download('punkt')).submit_to(executor)
-    nlp = DependentRunner(load_nlp).submit_to(executor)
-    return stopwords, punkt, nlp
+    return stopwords, punkt
 
 
 def load_phase1(executor: futures.ThreadPoolExecutor,
