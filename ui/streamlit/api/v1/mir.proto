@@ -82,7 +82,7 @@ message SimilarPaper {
   string title = 2;
   string category = 3;
   string abstract = 4;
-  string distance = 5;
+  float distance = 5;
 }
 
 message RandomSimilarPapersResponse {
