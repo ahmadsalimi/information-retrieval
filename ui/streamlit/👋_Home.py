@@ -21,8 +21,7 @@ st.markdown(
     The source code containing the jupyter notebooks for the demos, the backend, and the frontend
     of this demo is available on [GitHub](https://github.com/ahmadsalimi/information-retrieval).
     
-    Backend is implemented with python using gRPC and the frontend is implemented with python using
-    [streamlit](https://streamlit.io/).
+    Backend is implemented with python using `gRPC` and the frontend is implemented with python using `streamlit`.
 
     ## 📚 Datasets
     
@@ -31,8 +30,8 @@ st.markdown(
     
     - AI & Bioinformatics from Semantic Scholar
     - Hardware & System from Semantic Scholar
-    - random arXiv papers from 2019
-    - crawled Semantic Scholar papers with the five papers of the following professors as seeds:
+    - Random arXiv papers from 2019
+    - Crawled Semantic Scholar papers with the five papers of each of the following professors as seeds:
         - [Dr. Shohreh Kasaei](https://scholar.google.com/citations?user=mvx4PvgAAAAJ&hl=en)
         - [Dr. Hamid R. Rabiee](https://scholar.google.com/citations?user=rKDtrNgAAAAJ&hl=en)
         - [Dr. Mohammad Hossein Rohban](https://scholar.google.com/citations?user=pRyJ6FkAAAAJ&hl=en)
@@ -41,10 +40,10 @@ st.markdown(
 
     ## 🤖 Models
 
-    The model used for clustering and finding similar papers is Sentence Transformer from huggingface
-    (sentence-transformers/all-mpnet-base-v2).
+    The model used for clustering and finding similar papers is Sentence Transformer from `huggingface`
+    (`sentence-transformers/all-mpnet-base-v2`).
     
-    Search methods (tf-idf and okapi25) are implemented from scratch using python, numpy, and pandas.
+    Search methods (`tf-idf` and `okapi25`) are implemented from scratch using `numpy`, and `pandas`.
     
     `spacy` and `nltk` are used for preprocessing.
     
