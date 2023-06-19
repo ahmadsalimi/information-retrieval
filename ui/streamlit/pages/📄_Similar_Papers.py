@@ -25,6 +25,7 @@ if select_random:
     st.markdown('### Similar Papers')
     for i, similar_paper in enumerate(response.similar_papers):
         st.markdown(f'#### {i + 1}. {similar_paper.title}')
+        st.markdown(f'Distance: {similar_paper.distance}')
         st.markdown(f'Category: {similar_paper.category}')
         st.markdown('##### Abstract')
         st.markdown(similar_paper.abstract)

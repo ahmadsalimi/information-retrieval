@@ -96,20 +96,24 @@ class SearchService(SearchServiceServicer):
             hits=[Phase3Paper(**asdict(result)) for result in results],
         )
 
-    def __get_similar_papers(self, paper_id: str) -> SimilarPaper:
+    def __get_similar_papers(self, paper_id: str, distance: float = 0) -> SimilarPaper:
         return SimilarPaper(
             doc_id=paper_id,
             title=self.similar_papers.data.loc[int(paper_id), "titles"],
             category=self.similar_papers.data.loc[int(paper_id), "category"],
             abstract=self.similar_papers.data.loc[int(paper_id), "abstracts"],
+            distance=distance,
         )
 
     def RandomSimilarPapers(self, request, context: grpc.ServicerContext):
         paper_id = np.random.choice(self.similar_papers.data['paper_id'].tolist())
         logger.info(f'RandomSimilarPapers: {paper_id}')
-        result = find_similar_docs(int(paper_id), request.number_of_similars, self.similar_papers.docs_embedding)
+        indices, distances = find_similar_docs(int(paper_id),
+                                               request.number_of_similars,
+                                               self.similar_papers.docs_embedding)
         logger.info('RandomSimilarPapers: done')
         return RandomSimilarPapersResponse(
             query_paper=self.__get_similar_papers(paper_id),
-            similar_papers=[self.__get_similar_papers(str(paper_id)) for paper_id in result]
+            similar_papers=[self.__get_similar_papers(str(index), distance)
+                            for index, distance in zip(indices, distances)]
         )
