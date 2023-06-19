@@ -108,6 +108,8 @@ class SearchService(SearchServiceServicer):
         paper_id = np.random.choice(self.similar_papers.data['paper_id'].tolist())
         logger.info(f'RandomSimilarPapers: {paper_id}')
         result = find_similar_docs(int(paper_id), request.number_of_similars, self.similar_papers.docs_embedding)
+        logger.info(f'RandomSimilarPapers: {result}')
+        logger.info(f'RandomSimilarPapers: {self.similar_papers.data.loc[result]}')
         logger.info('RandomSimilarPapers: done')
         return RandomSimilarPapersResponse(
             query_paper=self.__get_similar_papers(paper_id),
