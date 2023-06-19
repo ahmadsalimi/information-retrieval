@@ -69,7 +69,14 @@ class SearchClient(ABC):
             t1 = time.time()
             with st.spinner('Searching...'):
                 stub = SearchServiceStub(channel)
-                response = self._call_search(stub, query)
+                try:
+                    response = self._call_search(stub, query)
+                except grpc.RpcError as e:
+                    if e.code() == grpc.StatusCode.UNAVAILABLE:
+                        st.error(f'Backend is unavailable: {e.details()}')
+                    else:
+                        st.error(f'Unexpected error: {e.details()}')
+                    st.stop()
             t2 = time.time()
             st.success(f'Search done in {t2 - t1:.2f} seconds')
             corrected_query = ' '.join([corrected if corrected == actual else f'<b><i>{corrected}</i></b>'
