@@ -34,14 +34,17 @@ def serve(config: Config):
 
     killer = GracefulKiller()
 
+    executor = futures.ThreadPoolExecutor(max_workers=config.grpc.num_workers)
+
     nltk.download('punkt')
     nltk.download('stopwords')
-    ai_bio = load_phase1('ai-bio')
-    hw_system = load_phase1('hardware-system')
-    arxiv = load_phase2()
-    ss = load_phase3()
-    similar_papers = load_similar_papers()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=config.grpc.num_workers))
+
+    ai_bio = load_phase1(executor, 'ai-bio')
+    hw_system = load_phase1(executor, 'hardware-system')
+    arxiv = load_phase2(executor)
+    ss = load_phase3(executor)
+    similar_papers = load_similar_papers(executor)
+    server = grpc.server(executor)
     settings.SERVICER_ADDER(settings.SERVICE(ai_bio, hw_system, arxiv, ss, similar_papers), server)
 
     listen_addr = f'[::]:{config.grpc.listen_port}'

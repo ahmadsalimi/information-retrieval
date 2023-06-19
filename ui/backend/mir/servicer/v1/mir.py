@@ -35,6 +35,9 @@ class SearchService(SearchServiceServicer):
     def Phase1Search(self, request, context: grpc.ServicerContext):
         logger.info(f'Phase1Search: {request.dataset} - {request.query}')
         phase1 = self.get_phase1(request.dataset)
+        if not phase1.is_totally_loaded:
+            logger.warn('Phase1Search: dataset is yet to be loaded')
+            context.abort(grpc.StatusCode.UNAVAILABLE, 'Dataset is yet to be loaded')
         search_handle = phase1_search(phase1.corpus,
                                       phase1.trie,
                                       phase1.bigram_index,
@@ -55,6 +58,9 @@ class SearchService(SearchServiceServicer):
     def Phase2Search(self, request, context: grpc.ServicerContext):
         logger.info(f'Phase2Search: {request.query}')
         phase2 = self.arxiv
+        if not phase2.is_totally_loaded:
+            logger.warn('Phase2Search: dataset is yet to be loaded')
+            context.abort(grpc.StatusCode.UNAVAILABLE, 'Dataset is yet to be loaded')
         search_handle = phase2_search(phase2.corpus,
                                       phase2.trie,
                                       phase2.bigram_index,
@@ -77,6 +83,9 @@ class SearchService(SearchServiceServicer):
     def Phase3Search(self, request, context: grpc.ServicerContext):
         logger.info(f'Phase3Search: {request.query}')
         phase3 = self.ss
+        if not phase3.is_totally_loaded:
+            logger.warn('Phase3Search: dataset is yet to be loaded')
+            context.abort(grpc.StatusCode.UNAVAILABLE, 'Dataset is yet to be loaded')
         search_handle = phase3_search(phase3.corpus,
                                       phase3.trie,
                                       phase3.bigram_index,
@@ -106,6 +115,9 @@ class SearchService(SearchServiceServicer):
         )
 
     def RandomSimilarPapers(self, request, context: grpc.ServicerContext):
+        if not self.similar_papers.is_totally_loaded:
+            logger.warn('RandomSimilarPapers: dataset is yet to be loaded')
+            context.abort(grpc.StatusCode.UNAVAILABLE, 'Dataset is yet to be loaded')
         paper_id = np.random.choice(self.similar_papers.data['paper_id'].tolist())
         logger.info(f'RandomSimilarPapers: {paper_id}')
         indices, distances = find_similar_docs(int(paper_id),
