@@ -38,11 +38,14 @@ def serve(config: Config):
 
     languages = load_languages(executor)
     with DependentRunner.use_default_dependencies(*languages):
-        ai_bio = load_phase1(executor, 'ai-bio')
-        hw_system = load_phase1(executor, 'hardware-system')
-        arxiv = load_phase2(executor)
-        ss = load_phase3(executor)
-        similar_papers = load_similar_papers(executor)
+        ai_bio, ai_bio_nodes = load_phase1(executor, 'ai-bio')
+        hw_system, hw_system_nodes = load_phase1(executor, 'hardware-system')
+        arxiv, arxiv_nodes = load_phase2(executor)
+        ss, ss_nodes = load_phase3(executor)
+        similar_papers, similar_papers_nodes = load_similar_papers(executor)
+        DependentRunner(lambda: logger.info('all dependencies are loaded'),
+                        *ai_bio_nodes, *hw_system_nodes, *arxiv_nodes, *ss_nodes, *similar_papers_nodes) \
+            .submit_to(executor)
     server = grpc.server(executor)
     settings.SERVICER_ADDER(settings.SERVICE(ai_bio, hw_system, arxiv, ss, similar_papers), server)
 

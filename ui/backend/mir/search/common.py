@@ -96,8 +96,8 @@ class DependentRunner:
     current_context_default_dependencies: Iterable['DependentRunner'] = []
 
     def __init__(self, loader: Callable[[], Any],
-                 setter: Optional[Callable[[Any], None]] = None,
-                 *dependencies: 'DependentRunner'):
+                 *dependencies: 'DependentRunner',
+                 setter: Optional[Callable[[Any], None]] = None):
         self.loader = loader
         self.setter = setter
         self.dependencies = list(self.current_context_default_dependencies) + list(dependencies)
@@ -120,13 +120,13 @@ class DependentRunner:
     def attr_setter(cls, obj: Any, attr: str,
                     loader: Callable[[], Any],
                     *dependencies: 'DependentRunner') -> 'DependentRunner':
-        return cls(loader, lambda result: setattr(obj, attr, result), *dependencies)
+        return cls(loader, setter=lambda result: setattr(obj, attr, result), *dependencies)
 
     @classmethod
     def dict_setter(cls, d: Dict[str, Any], key: str,
                     loader: Callable[[], Any],
                     *dependencies: 'DependentRunner') -> 'DependentRunner':
-        return cls(loader, lambda result: d.__setitem__(key, result), *dependencies)
+        return cls(loader, setter=lambda result: d.__setitem__(key, result), *dependencies)
 
     @classmethod
     @contextlib.contextmanager
@@ -146,18 +146,18 @@ def load_languages(executor: futures.ThreadPoolExecutor) -> Tuple[DependentRunne
 
 
 def load_phase1(executor: futures.ThreadPoolExecutor,
-                dataset: Literal['ai-bio', 'hardware-system']) -> Phase1:
+                dataset: Literal['ai-bio', 'hardware-system']) -> Tuple[Phase1, Tuple[DependentRunner, ...]]:
     phase1 = Phase1()
     corpus = DependentRunner.attr_setter(phase1, 'corpus',
-                                         lambda: load_corpus(dataset))\
+                                         lambda: load_corpus(dataset)) \
         .submit_to(executor)
-    DependentRunner.attr_setter(phase1, 'trie',
-                                lambda: phase1_construct_positional_indexes(dataset, phase1.corpus), corpus)\
+    trie = DependentRunner.attr_setter(phase1, 'trie',
+                                       lambda: phase1_construct_positional_indexes(dataset, phase1.corpus), corpus) \
         .submit_to(executor)
-    DependentRunner.attr_setter(phase1, 'bigram_index',
-                                lambda: phase1_create_bigram_index(dataset, phase1.corpus), corpus)\
+    bigram_index = DependentRunner.attr_setter(phase1, 'bigram_index',
+                                               lambda: phase1_create_bigram_index(dataset, phase1.corpus), corpus) \
         .submit_to(executor)
-    return phase1
+    return phase1, (corpus, trie, bigram_index)
 
 
 @pickle_cache(args_for_hash=[])
@@ -166,48 +166,48 @@ def process_arxiv_data(_data: pd.DataFrame) -> pd.Series:
         .apply(preprocess_text).str.join(' ')
 
 
-def load_phase2(executor: futures.ThreadPoolExecutor) -> Phase2:
+def load_phase2(executor: futures.ThreadPoolExecutor) -> Tuple[Phase2, Tuple[DependentRunner, ...]]:
     dataset = 'arxiv'
     phase2 = Phase2()
     intermediate_objects = {}
     corpus = DependentRunner.attr_setter(phase2, 'corpus',
-                                         lambda: load_corpus(dataset))\
+                                         lambda: load_corpus(dataset)) \
         .submit_to(executor)
-    DependentRunner.attr_setter(phase2, 'trie',
-                                lambda: phase2_construct_positional_indexes(dataset, phase2.corpus), corpus)\
+    trie = DependentRunner.attr_setter(phase2, 'trie',
+                                       lambda: phase2_construct_positional_indexes(dataset, phase2.corpus), corpus) \
         .submit_to(executor)
-    DependentRunner.attr_setter(phase2, 'bigram_index',
-                                lambda: phase2_create_bigram_index(dataset, phase2.corpus), corpus)\
+    bigram_index = DependentRunner.attr_setter(phase2, 'bigram_index',
+                                               lambda: phase2_create_bigram_index(dataset, phase2.corpus), corpus) \
         .submit_to(executor)
     docs_embedding = DependentRunner.dict_setter(intermediate_objects, 'docs_embedding',
                                                  lambda: load_docs_embedding(
-                                                     '../drive/MyDrive/arxiv-sbert-embeddings.npy'))\
+                                                     '../drive/MyDrive/arxiv-sbert-embeddings.npy')) \
         .submit_to(executor)
     preprocessed_documents = DependentRunner.dict_setter(intermediate_objects, 'preprocessed_documents',
                                                          lambda: process_arxiv_data(phase2.corpus.data), corpus) \
         .submit_to(executor)
-    DependentRunner.attr_setter(phase2, 'kmeans_dict',
-                                lambda: cluster_kmeans(
-                                    intermediate_objects['docs_embedding'][phase2.corpus.random_indices],
-                                    intermediate_objects['preprocessed_documents'], 3),
-                                corpus, docs_embedding, preprocessed_documents) \
+    kmeans_dict = DependentRunner.attr_setter(phase2, 'kmeans_dict',
+                                              lambda: cluster_kmeans(
+                                                  intermediate_objects['docs_embedding'][phase2.corpus.random_indices],
+                                                  intermediate_objects['preprocessed_documents'], 3),
+                                              corpus, docs_embedding, preprocessed_documents) \
         .submit_to(executor)
-    return phase2
+    return phase2, (corpus, trie, bigram_index, docs_embedding, preprocessed_documents, kmeans_dict)
 
 
-def load_phase3(executor: futures.ThreadPoolExecutor) -> Phase3:
+def load_phase3(executor: futures.ThreadPoolExecutor) -> Tuple[Phase3, Tuple[DependentRunner, ...]]:
     dataset = 'ss'
     phase3 = Phase3()
     corpus = DependentRunner.attr_setter(phase3, 'corpus',
-                                         lambda: load_corpus(dataset))\
+                                         lambda: load_corpus(dataset)) \
         .submit_to(executor)
-    DependentRunner.attr_setter(phase3, 'trie',
-                                lambda: phase3_construct_positional_indexes(dataset, phase3.corpus), corpus)\
+    trie = DependentRunner.attr_setter(phase3, 'trie',
+                                       lambda: phase3_construct_positional_indexes(dataset, phase3.corpus), corpus) \
         .submit_to(executor)
-    DependentRunner.attr_setter(phase3, 'bigram_index',
-                                lambda: phase3_create_bigram_index(dataset, phase3.corpus), corpus)\
+    bigram_index = DependentRunner.attr_setter(phase3, 'bigram_index',
+                                               lambda: phase3_create_bigram_index(dataset, phase3.corpus), corpus) \
         .submit_to(executor)
-    return phase3
+    return phase3, (corpus, trie, bigram_index)
 
 
 def load_arxiv_data() -> pd.DataFrame:
@@ -218,11 +218,12 @@ def load_arxiv_data() -> pd.DataFrame:
     return df
 
 
-def load_similar_papers(executor: futures.ThreadPoolExecutor) -> SimilarPapers:
+def load_similar_papers(executor: futures.ThreadPoolExecutor) -> Tuple[SimilarPapers, Tuple[DependentRunner, ...]]:
     similar_papers = SimilarPapers()
-    DependentRunner.attr_setter(similar_papers, 'docs_embedding',
-                                lambda: load_docs_embedding('../drive/MyDrive/arxiv-sbert-embeddings.npy'))\
+    docs_embedding = DependentRunner.attr_setter(similar_papers, 'docs_embedding',
+                                                 lambda: load_docs_embedding(
+                                                     '../drive/MyDrive/arxiv-sbert-embeddings.npy')) \
         .submit_to(executor)
-    DependentRunner.attr_setter(similar_papers, 'data', load_arxiv_data)\
+    data = DependentRunner.attr_setter(similar_papers, 'data', load_arxiv_data) \
         .submit_to(executor)
-    return similar_papers
+    return similar_papers, (docs_embedding, data)
