@@ -42,18 +42,22 @@ def serve(config: Config):
             arxiv, arxiv_nodes = load_phase2(executor)
             ss, ss_nodes = load_phase3(executor)
             similar_papers, similar_papers_nodes = load_similar_papers(executor)
-            DependentRunner(lambda: logger.info('all dependencies are loaded'),
-                            *ai_bio_nodes, *hw_system_nodes, *arxiv_nodes, *ss_nodes, *similar_papers_nodes) \
+            loading_done = DependentRunner(lambda: logger.info('all dependencies are loaded'),
+                                           *ai_bio_nodes, *hw_system_nodes, *arxiv_nodes, *ss_nodes,
+                                           *similar_papers_nodes) \
                 .submit_to(executor)
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=config.grpc.num_workers))
-    settings.SERVICER_ADDER(settings.SERVICE(ai_bio, hw_system, arxiv, ss, similar_papers), server)
 
-    listen_addr = f'[::]:{config.grpc.listen_port}'
-    server.add_insecure_port(listen_addr)
-    server.start()
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=config.grpc.num_workers))
+        settings.SERVICER_ADDER(settings.SERVICE(ai_bio, hw_system, arxiv, ss, similar_papers), server)
 
-    logger.info(f'started server on {listen_addr}')
+        listen_addr = f'[::]:{config.grpc.listen_port}'
+        server.add_insecure_port(listen_addr)
+        server.start()
 
-    killer.wait()
-    logger.info('stopping server')
-    server.stop(0)
+        logger.info(f'started server on {listen_addr}')
+
+        loading_done.event.wait()
+
+        killer.wait()
+        logger.info('stopping server')
+        server.stop(0)
