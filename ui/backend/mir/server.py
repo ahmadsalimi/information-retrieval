@@ -58,6 +58,6 @@ def serve(config: Config):
 
         loading_done.event.wait()
 
-        killer.wait()
-        logger.info('stopping server')
-        server.stop(0)
+    killer.wait()
+    logger.info('stopping server')
+    server.stop(0)

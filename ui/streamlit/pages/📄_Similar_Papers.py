@@ -16,7 +16,14 @@ if select_random:
     with st.spinner('Finding a random paper and its similar papers'):
         with grpc.insecure_channel('backend:50051') as channel:
             stub = SearchServiceStub(channel)
-            response = stub.RandomSimilarPapers(RandomSimilarPapersRequest(number_of_similars=number_of_similars))
+            try:
+                response = stub.RandomSimilarPapers(RandomSimilarPapersRequest(number_of_similars=number_of_similars))
+            except grpc.RpcError as e:
+                if e.code() == grpc.StatusCode.UNAVAILABLE:
+                    st.error(f'Backend is unavailable: {e.details()}')
+                else:
+                    st.error(f'Unexpected error: {e.details()}')
+                st.stop()
     st.markdown(f'## {response.query_paper.title}')
     st.markdown(f'Category: {response.query_paper.category}')
     st.markdown('### Abstract')
