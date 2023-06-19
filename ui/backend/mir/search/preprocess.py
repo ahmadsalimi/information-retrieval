@@ -1,6 +1,6 @@
 from collections import Counter
 from functools import lru_cache
-from typing import List, Iterator, Set
+from typing import List, Iterator, Set, Optional
 
 import pandas as pd
 import spacy
@@ -17,7 +17,12 @@ def get_nlp() -> spacy.Language:
         print('Loaded spacy model')
 
 
-nlp = get_nlp()
+nlp: Optional[spacy.Language] = None
+
+
+def load_nlp() -> None:
+    global nlp
+    nlp = get_nlp()
 
 
 def batch_clean_data(texts: List[str], batch_size: int = 128) -> Iterator[List[Token]]:

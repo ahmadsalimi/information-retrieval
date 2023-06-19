@@ -1,10 +1,12 @@
+import contextlib
 import json
 import threading
 from concurrent import futures
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Literal, Optional, Any, Callable, Tuple
+from typing import Dict, Literal, Optional, Any, Callable, Tuple, Iterable
 
+import nltk
 import numpy as np
 import pandas as pd
 
@@ -14,6 +16,7 @@ from mir.clustering.preprocess import preprocess_text
 from mir.search.corpus.phase1 import Corpus as Phase1Corpus
 from mir.search.corpus.phase2 import Corpus as Phase2Corpus
 from mir.search.corpus.phase3 import Corpus as Phase3Corpus
+from mir.search.preprocess import load_nlp
 from mir.search.trie.phase1 import TrieNode as Phase1TrieNode,\
     construct_positional_indexes as phase1_construct_positional_indexes
 from mir.search.trie.phase2 import TrieNode as Phase2TrieNode,\
@@ -91,19 +94,23 @@ def load_corpus(dataset: Literal['ai-bio', 'hardware-system', 'arxiv', 'ss']):
 
 class DependentRunner:
     set_lock = threading.Lock()
+    current_context_default_dependencies: Iterable['DependentRunner'] = []
 
-    def __init__(self, loader: Callable[[], Any], setter: Callable[[Any], None], *dependencies: 'DependentRunner'):
+    def __init__(self, loader: Callable[[], Any],
+                 setter: Optional[Callable[[Any], None]] = None,
+                 *dependencies: 'DependentRunner'):
         self.loader = loader
         self.setter = setter
-        self.dependencies = dependencies
+        self.dependencies = list(self.current_context_default_dependencies) + list(dependencies)
         self.event = threading.Event()
 
     def __call__(self):
         for dependency in self.dependencies:
             dependency.event.wait()
         result = self.loader()
-        with self.set_lock:
-            self.setter(result)
+        if self.setter is not None:
+            with self.set_lock:
+                self.setter(result)
         self.event.set()
 
     def submit_to(self, executor: futures.ThreadPoolExecutor) -> 'DependentRunner':
@@ -122,8 +129,26 @@ class DependentRunner:
                     *dependencies: 'DependentRunner') -> 'DependentRunner':
         return cls(loader, lambda result: d.__setitem__(key, result), *dependencies)
 
+    @classmethod
+    @contextlib.contextmanager
+    def use_default_dependencies(cls, *dependencies: 'DependentRunner'):
+        old_default_dependencies = cls.current_context_default_dependencies
+        cls.current_context_default_dependencies = dependencies
+        try:
+            yield
+        finally:
+            cls.current_context_default_dependencies = old_default_dependencies
 
-def load_phase1(executor: futures.ThreadPoolExecutor, dataset: Literal['ai-bio', 'hardware-system']) -> Phase1:
+
+def load_languages(executor: futures.ThreadPoolExecutor) -> Tuple[DependentRunner, ...]:
+    stopwords = DependentRunner(lambda: nltk.download('stopwords')).submit_to(executor)
+    punkt = DependentRunner(lambda: nltk.download('punkt')).submit_to(executor)
+    nlp = DependentRunner(load_nlp).submit_to(executor)
+    return stopwords, punkt, nlp
+
+
+def load_phase1(executor: futures.ThreadPoolExecutor,
+                dataset: Literal['ai-bio', 'hardware-system']) -> Phase1:
     phase1 = Phase1()
     corpus = DependentRunner.attr_setter(phase1, 'corpus',
                                          lambda: load_corpus(dataset))\
@@ -200,7 +225,6 @@ def load_similar_papers(executor: futures.ThreadPoolExecutor) -> SimilarPapers:
     DependentRunner.attr_setter(similar_papers, 'docs_embedding',
                                 lambda: load_docs_embedding('../drive/MyDrive/arxiv-sbert-embeddings.npy'))\
         .submit_to(executor)
-    DependentRunner.attr_setter(similar_papers, 'data',
-                                lambda: load_arxiv_data())\
+    DependentRunner.attr_setter(similar_papers, 'data', load_arxiv_data)\
         .submit_to(executor)
     return similar_papers

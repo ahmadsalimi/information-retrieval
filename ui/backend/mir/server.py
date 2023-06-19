@@ -8,7 +8,7 @@ import nltk
 
 from mir.config.config import Config
 from mir.config import settings
-from mir.search.common import load_phase1, load_phase2, load_phase3, load_similar_papers
+from mir.search.common import load_phase1, load_phase2, load_phase3, load_similar_papers, load_languages, DependentRunner
 from mir.util import getLogger
 
 logger = getLogger(__name__)
@@ -36,14 +36,13 @@ def serve(config: Config):
 
     executor = futures.ThreadPoolExecutor(max_workers=config.grpc.num_workers)
 
-    nltk.download('punkt')
-    nltk.download('stopwords')
-
-    ai_bio = load_phase1(executor, 'ai-bio')
-    hw_system = load_phase1(executor, 'hardware-system')
-    arxiv = load_phase2(executor)
-    ss = load_phase3(executor)
-    similar_papers = load_similar_papers(executor)
+    languages = load_languages(executor)
+    with DependentRunner.use_default_dependencies(*languages):
+        ai_bio = load_phase1(executor, 'ai-bio')
+        hw_system = load_phase1(executor, 'hardware-system')
+        arxiv = load_phase2(executor)
+        ss = load_phase3(executor)
+        similar_papers = load_similar_papers(executor)
     server = grpc.server(executor)
     settings.SERVICER_ADDER(settings.SERVICE(ai_bio, hw_system, arxiv, ss, similar_papers), server)
 
