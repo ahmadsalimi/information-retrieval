@@ -2,11 +2,11 @@ version: "3.9"
 
 services:
   crawl:
-    build: ./ss_crawler
+    build: .
     container_name: ss-crawl
     volumes:
-      - ./data/papers:/app/data/papers
-      - ./results:/app/results
+      - ./../data/papers:/app/data/papers
+      - ./../results:/app/results
     environment:
       MAX_PAPERS: ${MAX_PAPERS}
       MIN_WAIT_TIME: ${MIN_WAIT_TIME}
@@ -16,4 +16,4 @@ services:
     image: redis:alpine
     container_name: ss-cache
     volumes:
-      - ./data/redis:/data
+      - ./../data/redis:/data
